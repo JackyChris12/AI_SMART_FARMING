@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Livestock Logs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2, h3 {
+      color: #2c3e50;
+    }
+
+    p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    ul li {
+      background: #eaeaea;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 5px;
+      font-size: 15px;
+      color: #333;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 15px;
+      background: #2980b9;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    a:hover {
+      background: #1c5f8a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><%= livestock.name %> - Logs</h2>
+    <p>Type: <%= livestock.livestock_type %></p>
+    <p>Region: <%= livestock.region %></p>
+
+    <h3>Monitoring Logs</h3>
+    <ul>
+      <% if (logs.length > 0) { %>
+        <% logs.forEach(log => { %>
+          <li>
+            <strong><%= log.log_date.toISOString().split('T')[0] %></strong>:
+            Feed: <%= log.feed %>,
+            Production: <%= log.production %>,
+            Symptoms: <%= log.symptoms || 'None' %>
+          </li>
+        <% }) %>
+      <% } else { %>
+        <li>No logs found for this livestock.</li>
+      <% } %>
+    </ul>
+
+    <a href="/livestock">← Back to Livestock</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Livestock Monitoring</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h2,
+      h3,
+      h4 {
+        font-size: 20px;
+        color: #2c3e50;
+      }
+
+      form {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f1f1f1;
+        border-radius: 8px;
+      }
+
+      label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #219150;
+      }
+
+      .links {
+        margin-top: 30px;
+      }
+
+      .links a {
+        display: inline-block;
+        margin-right: 15px;
+        padding: 10px 15px;
+        background: #2980b9;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+
+      .links a:hover {
+        background: #1c5f8a;
+      }
+
+      .action-links {
+        margin-top: 10px;
+        margin-bottom: 15px;
+      }
+
+      .action-links a {
+        display: inline-block;
+        padding: 8px 12px;
+        background: #8e44ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-right: 10px;
+      }
+
+      .action-links a:hover {
+        background: #6c3483;
+      }
+
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      ul li {
+        background: #eaeaea;
+        margin-bottom: 8px;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      hr {
+        border: 1px solid #ddd;
+        margin: 30px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Livestock Monitoring</h2>
+
+      <% if (livestockList && livestockList.length > 0) { %> <%
+      livestockList.forEach(livestock => { %>
+      <h3><%= livestock.name %> (<%= livestock.livestock_type %>)</h3>
+
+      <div class="action-links">
+        <a href="/livestock/logs/<%= livestock.id %>">📄 View Logs</a>
+      </div>
+
+      <form action="/monitor" method="POST">
+        <input type="hidden" name="livestock_id" value="<%= livestock.id %>" />
+
+        <label>Feed Given:</label>
+        <input type="text" name="feed" required />
+
+        <label>Production (e.g., milk):</label>
+        <input type="number" step="0.1" name="production" />
+
+        <label>Symptoms (if any):</label>
+        <input type="text" name="symptoms" />
+
+        <button type="submit">Save Record</button>
+      </form>
+
+      <h4>Past Records</h4>
+      <ul>
+        <% if (livestock.logs && livestock.logs.length > 0) { %> <%
+        livestock.logs.forEach(log => { %>
+        <li>
+          <strong><%= log.log_date.toISOString().split('T')[0] %>:</strong>
+          Feed: <%= log.feed %> | Production: <%= log.production %> | Symptoms:
+          <%= log.symptoms || 'None' %>
+        </li>
+        <% }) %> <% } else { %>
+        <li>No records yet.</li>
+        <% } %>
+      </ul>
+      <hr />
+      <% }) %> <% } else { %>
+      <p>You have not added any livestock yet.</p>
+      <% } %>
+
+      <div class="links">
+        <a href="/livestock/add">➕ Add New Livestock</a>
+      </div>
+    </div>
+  </body>
+</html>

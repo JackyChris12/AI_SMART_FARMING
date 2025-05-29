@@ -1,0 +1,345 @@
+/* Base Styles */
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5fff0;
+  color: #2f4f1f;
+  font-size: 24px;
+}
+
+/* Header */
+.main-header {
+  background-color: #2f4f1f;
+  color: #fff;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.logo span {
+  color: #88cc44;
+}
+
+.main-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.main-nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.main-nav a:hover {
+  color: #88cc44;
+}
+
+/* Hero Section */
+.hero {
+  background: url("/images/tomatoes.jpg") center/cover no-repeat;
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hero .overlay {
+  background: rgba(0, 100, 0, 0.6);
+  padding: 2rem;
+  color: #fff;
+  text-align: center;
+  border-radius: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin: 0;
+  animation: fadeIn 2s ease-in-out;
+}
+
+.hero p {
+  font-size: 1.5rem;
+  margin: 10px 0;
+}
+
+.hero .btn {
+  background: #88cc44;
+  padding: 0.7rem 1.5rem;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  margin-top: 1rem;
+  display: inline-block;
+}
+
+.hero .btn:hover {
+  background: #6fa836;
+}
+
+/* General Sections */
+section {
+  padding: 2rem;
+  text-align: center;
+}
+
+section h2 {
+  font-size: 2rem;
+  color: #2f4f1f;
+  margin-bottom: 1.5rem;
+}
+
+/* Equipment Section */
+.equipment-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.equipment {
+  background: #fff;
+  border-left: 5px solid #88cc44;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.equipment:hover {
+  transform: scale(1.1);
+  background-color: #88cc44;
+  color: #fff;
+}
+
+.equipment img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+}
+
+.equipment h3 {
+  font-size: 1.5rem;
+  margin: 0.5rem;
+  color: #2f4f1f;
+}
+
+.equipment p {
+  font-size: 1rem;
+  margin: 0 0.5rem 0.5rem;
+  color: #333;
+}
+
+.equipment a {
+  display: block;
+  margin: 0.5rem;
+  padding: 0.7rem;
+  background: #88cc44;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.equipment a:hover {
+  background: #6fa836;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 1.5rem 0;
+}
+
+.pagination a,
+.pagination span {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+}
+
+.pagination a {
+  background: #88cc44;
+  color: #fff;
+  text-decoration: none;
+}
+
+.pagination a:hover {
+  background: #6fa836;
+}
+
+.pagination span {
+  color: #2f4f1f;
+}
+
+/* Rental Form */
+.rental-form {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.rental-form h1 {
+  font-size: 1.8rem;
+  color: #2f4f1f;
+  margin-bottom: 1rem;
+}
+
+.equipment-details img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.rental-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rental-form label {
+  font-size: 1rem;
+  color: #2f4f1f;
+}
+
+.rental-form input[type="date"] {
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.rental-form button {
+  padding: 0.7rem;
+  background: #88cc44;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.rental-form button:hover {
+  background: #6fa836;
+}
+
+/* Feedback */
+.loading,
+.error,
+.success {
+  margin-top: 1rem;
+  padding: 0.7rem;
+  text-align: center;
+  border-radius: 5px;
+}
+
+.loading,
+.success {
+  background: #e8f5e9;
+  color: #2f4f1f;
+}
+
+.error {
+  background: #fde8e8;
+  color: #d32f2f;
+}
+
+/* Additional Sections */
+.features,
+.recommendations,
+.about {
+  padding: 2rem;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+  transition: transform 2s ease;
+  cursor: pointer;
+}
+
+.grid .card {
+  background: #fff;
+  border-left: 5px solid #88cc44;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.grid .card:hover {
+  transform: scale(1.1);
+  background: #88cc44;
+  color: #fff;
+}
+
+/* Footer */
+footer {
+  background: #2f4f1f;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Fixes */
+@media (max-width: 768px) {
+  .equipment {
+    width: calc(50% - 1.5rem);
+  }
+
+  .container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .main-nav ul {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}

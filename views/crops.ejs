@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crop Yield Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!--  recheck here -->
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Custom spinner for loading state */
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid #fff;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-4 sm:p-6 lg:p-8 flex items-center justify-center"
+  >
+    <div
+      class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-3xl border border-gray-200"
+    >
+      <h1
+        class="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-6 text-center"
+      >
+        Crop Yield Predictor
+      </h1>
+      <p class="text-gray-600 text-center mb-8">
+        Input your crop details and land size to get an estimated yield and
+        recommended practices for optimal growth.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div>
+          <label
+            for="cropName"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Crop Name
+          </label>
+          <input
+            type="text"
+            id="cropName"
+            placeholder="e.g., Maize, Wheat"
+            class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-base transition duration-150 ease-in-out"
+          />
+        </div>
+
+        <div>
+          <label
+            for="landSize"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Land Size
+          </label>
+          <div class="flex space-x-3">
+            <input
+              type="number"
+              id="landSize"
+              placeholder="e.g., 5"
+              min="0.1"
+              step="0.1"
+              class="mt-1 block w-2/3 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-base transition duration-150 ease-in-out"
+            />
+            <select
+              id="landUnit"
+              class="mt-1 block w-1/3 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-base transition duration-150 ease-in-out"
+            >
+              <option value="hectares">Hectares (ha)</option>
+              <option value="acres">Acres (ac)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label
+            for="plantingSeason"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Planting Season
+          </label>
+          <div class="flex space-x-3">
+            <select
+              id="plantingMonth"
+              class="mt-1 block w-1/2 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-base transition duration-150 ease-in-out"
+            >
+              <option value="">Month</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <select
+              id="plantingYear"
+              class="mt-1 block w-1/2 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-base transition duration-150 ease-in-out"
+            >
+              <option value="">Year</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label
+            for="harvestSeason"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Harvest Season
+          </label>
+          <div class="flex space-x-3">
+            <select
+              id="harvestMonth"
+              class="mt-1 block w-1/2 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-base transition duration-150 ease-in-out"
+            >
+              <option value="">Month</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <select
+              id="harvestYear"
+              class="mt-1 block w-1/2 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-base transition duration-150 ease-in-out"
+            >
+              <option value="">Year</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="predictButton"
+        class="w-full py-3 px-4 rounded-md text-white font-semibold shadow-lg transition duration-300 ease-in-out bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+      >
+        Predict Yield & Get Recommendations
+      </button>
+
+      <div
+        id="errorMessage"
+        class="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md text-center hidden"
+      ></div>
+
+      <div
+        id="resultsSection"
+        class="mt-8 pt-8 border-t-2 border-gray-100 hidden"
+      >
+        <h2
+          class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 text-center"
+        >
+          Your Predicted Yield & Recommendations
+        </h2>
+        <div class="bg-green-50 p-5 rounded-lg shadow-inner mb-6">
+          <p class="text-lg text-gray-700 font-semibold mb-2">
+            Predicted Yield for
+            <span id="predictedCropName" class="text-green-800"></span>:
+          </p>
+          <p
+            id="predictedYield"
+            class="text-2xl font-extrabold text-green-700"
+          ></p>
+          <p class="text-sm text-gray-500 mt-1">
+            (This prediction assumes optimal application of recommended
+            practices and prevention.)
+          </p>
+        </div>
+
+        <h3 class="text-xl sm:text-2xl font-semibold text-gray-700 mb-3">
+          Recommended Practices & Prevention:
+        </h3>
+        <ul
+          id="recommendationsList"
+          class="list-disc list-inside space-y-2 text-gray-700"
+        ></ul>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Get references to DOM elements
+        const cropNameInput = document.getElementById("cropName");
+        const landSizeInput = document.getElementById("landSize");
+        const landUnitSelect = document.getElementById("landUnit");
+        const plantingMonthSelect = document.getElementById("plantingMonth");
+        const plantingYearSelect = document.getElementById("plantingYear");
+        const harvestMonthSelect = document.getElementById("harvestMonth");
+        const harvestYearSelect = document.getElementById("harvestYear");
+        const predictButton = document.getElementById("predictButton");
+        const errorMessageDiv = document.getElementById("errorMessage");
+        const resultsSection = document.getElementById("resultsSection");
+        const predictedCropNameSpan =
+          document.getElementById("predictedCropName");
+        const predictedYieldP = document.getElementById("predictedYield");
+        const recommendationsList = document.getElementById(
+          "recommendationsList"
+        );
+
+        // Populate year dropdowns
+        const currentYear = new Date().getFullYear();
+        const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i); // Current year +/- 5 years
+
+        function populateYears(selectElement) {
+          years.forEach((year) => {
+            const option = document.createElement("option");
+            option.value = year;
+            option.textContent = year;
+            selectElement.appendChild(option);
+          });
+        }
+        populateYears(plantingYearSelect);
+        populateYears(harvestYearSelect);
+
+        /**
+         * Fetches yield prediction and recommendations from a backend AI service.
+         * This function simulates an API call to your Express backend.
+         * The backend would then use AI/ML models (e.g., Gemini API) to
+         * predict yield and generate recommendations for any given crop.
+         *
+         * @param {string} crop The name of the crop.
+         * @param {number} size The size of the land.
+         * @param {string} unit The unit of the land size (hectares or acres).
+         * @param {string} pMonth The planting month.
+         * @param {string} pYear The planting year.
+         * @param {string} hMonth The harvest month.
+         * @param {string} hYear The harvest year.
+         * @returns {Promise<{yield: string, recommendations: string[], error: string}>} An object containing the predicted yield, recommendations, or an error.
+         */
+        const fetchYieldPrediction = async (
+          crop,
+          size,
+          unit,
+          pMonth,
+          pYear,
+          hMonth,
+          hYear
+        ) => {
+          let error = "";
+
+          // Basic validation
+          if (
+            !crop.trim() ||
+            !size ||
+            !unit ||
+            !pMonth ||
+            !pYear ||
+            !hMonth ||
+            !hYear
+          ) {
+            error = "Please fill in all fields.";
+            return { yield: null, recommendations: [], error: error };
+          }
+          if (parseFloat(size) <= 0) {
+            error = "Land size must be a positive number.";
+            return { yield: null, recommendations: [], error: error };
+          }
+
+          // Convert land size to hectares for consistent backend processing
+          let landSizeHectares = parseFloat(size);
+          if (unit === "acres") {
+            landSizeHectares *= 0.404686; // 1 acre = 0.404686 hectares
+          }
+
+          try {
+            // *** INSERT YOUR GEMINI API KEY HERE ***
+            /*   const apiKey = "YOUR_API_KEY_HERE";  */ // Replace with your actual API key
+            
+            //api here
+
+            const response = await fetch(apiUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                `API error: ${response.status} - ${
+                  errorData.error.message || "Unknown error"
+                }`
+              );
+            }
+
+            const result = await response.json();
+
+            if (
+              result.candidates &&
+              result.candidates.length > 0 &&
+              result.candidates[0].content &&
+              result.candidates[0].content.parts &&
+              result.candidates[0].content.parts.length > 0
+            ) {
+              const jsonString = result.candidates[0].content.parts[0].text;
+              const parsedJson = JSON.parse(jsonString);
+
+              // Basic validation of the parsed JSON structure
+              if (
+                parsedJson.predictedYield &&
+                Array.isArray(parsedJson.recommendations) &&
+                parsedJson.recommendations.length === 5
+              ) {
+                return {
+                  yield: parsedJson.predictedYield,
+                  recommendations: parsedJson.recommendations,
+                  error: "",
+                };
+              } else {
+                throw new Error("Unexpected response format from AI model.");
+              }
+            } else {
+              throw new Error("No valid content received from AI model.");
+            }
+          } catch (e) {
+            console.error("Error fetching prediction:", e);
+            return {
+              yield: null,
+              recommendations: [],
+              error: `Failed to get prediction: ${e.message}. Please try again.`,
+            };
+          }
+        };
+
+        // Handle the prediction button click
+        predictButton.addEventListener("click", async () => {
+          // Clear previous results and errors
+          errorMessageDiv.classList.add("hidden");
+          resultsSection.classList.add("hidden");
+          predictedYieldP.textContent = "";
+          recommendationsList.innerHTML = "";
+
+          // Get input values
+          const cropName = cropNameInput.value;
+          const landSize = landSizeInput.value;
+          const landUnit = landUnitSelect.value;
+          const plantingMonth = plantingMonthSelect.value;
+          const plantingYear = plantingYearSelect.value;
+          const harvestMonth = harvestMonthSelect.value;
+          const harvestYear = harvestYearSelect.value;
+
+          // Show loading state
+          predictButton.disabled = true;
+          predictButton.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="spinner mr-3"></div>
+                        Predicting...
+                    </div>
+                `;
+
+          const {
+            yield: predictedYield,
+            recommendations: recs,
+            error: apiError,
+          } = await fetchYieldPrediction(
+            cropName,
+            landSize,
+            landUnit,
+            plantingMonth,
+            plantingYear,
+            harvestMonth,
+            harvestYear
+          );
+
+          if (apiError) {
+            errorMessageDiv.textContent = apiError;
+            errorMessageDiv.classList.remove("hidden");
+          } else {
+            predictedCropNameSpan.textContent = cropName;
+            predictedYieldP.textContent = predictedYield;
+            recommendationsList.innerHTML = ""; // Clear previous list items
+            recs.forEach((rec) => {
+              const li = document.createElement("li");
+              li.className = "flex items-start";
+              li.innerHTML = `<span class="text-green-600 mr-2 mt-1">&#8226;</span><span>${rec}</span>`;
+              recommendationsList.appendChild(li);
+            });
+            resultsSection.classList.remove("hidden");
+          }
+
+          // Reset button state
+          predictButton.disabled = false;
+          predictButton.textContent = "Predict Yield & Get Recommendations";
+        });
+      });
+    </script>
+  </body>
+</html>

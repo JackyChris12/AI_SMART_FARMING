@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Equipment Listings</title>
+
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f3f3f3;
+        padding: 20px;
+        margin: 0;
+      }
+      h1 {
+        align-items: center;
+        text-align: center;
+      }
+
+      .equipment-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 10px;
+      }
+
+      .equipment-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .equipment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .equipment-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .equipment-details {
+        padding: 15px;
+      }
+
+      .equipment-details h3 {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin-bottom: 8px;
+      }
+
+      .equipment-details p {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 10px;
+      }
+
+      .equipment-price {
+        font-size: 1.05rem;
+        color: #27ae60;
+        font-weight: bold;
+        margin-bottom: 12px;
+      }
+
+      .rent-button {
+        display: inline-block;
+        padding: 10px 16px;
+        background-color: #2ecc71;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background-color 0.3s ease;
+      }
+
+      .rent-button:hover {
+        background-color: #27ae60;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Available Equipment for Rent</h1>
+    <div class="equipment-container">
+      <% equipment.forEach(equipment => { %>
+      <div class="equipment-card">
+        <% if (equipment.image_url.startsWith('http')) { %>
+        <!-- If it's an external image like from Pexels -->
+        <img
+          src="<%= equipment.image_url %>"
+          alt="<%= equipment.name %>"
+          width="300"
+        />
+        <% } else { %>
+        <!-- If it's a local image stored in your project uploads folder -->
+        <img
+          src="/uploads/<%= equipment.image_url.replace(/^\/+/, '') %>"
+          alt="<%= equipment.name %>"
+          width="300"
+        />
+        <% } %>
+        <div class="equipment-details">
+          <h3 class="equipment-price"><%= equipment.name %></h3>
+          <p class="equipment-price"><%= equipment.description %></p>
+          <p class="equipment-price">
+            <strong>Price per Day:</strong> KES <%= equipment.price_per_day %>
+          </p>
+          <a href="/rent-equipment" class="rent-button"> Rent Now</a>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </body>
+</html>
