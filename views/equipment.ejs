@@ -11,9 +11,10 @@
         padding: 20px;
         margin: 0;
       }
+
       h1 {
-        align-items: center;
         text-align: center;
+        color: #2c3e50;
       }
 
       .equipment-container {
@@ -40,7 +41,6 @@
         width: 100%;
         height: 180px;
         object-fit: cover;
-        display: block;
       }
 
       .equipment-details {
@@ -85,31 +85,26 @@
     <h1>Available Equipment for Rent</h1>
     <div class="equipment-container">
       <% equipment.forEach(equipment => { %>
-      <div class="equipment-card">
-        <% if (equipment.image_url.startsWith('http')) { %>
-        <!-- If it's an external image like from Pexels -->
-        <img
-          src="<%= equipment.image_url %>"
-          alt="<%= equipment.name %>"
-          width="300"
-        />
-        <% } else { %>
-        <!-- If it's a local image stored in your project uploads folder -->
-        <img
-          src="/uploads/<%= equipment.image_url.replace(/^\/+/, '') %>"
-          alt="<%= equipment.name %>"
-          width="300"
-        />
-        <% } %>
-        <div class="equipment-details">
-          <h3 class="equipment-price"><%= equipment.name %></h3>
-          <p class="equipment-price"><%= equipment.description %></p>
-          <p class="equipment-price">
-            <strong>Price per Day:</strong> KES <%= equipment.price_per_day %>
-          </p>
-          <a href="/rent-equipment" class="rent-button"> Rent Now</a>
+        <div class="equipment-card">
+          <% if (equipment.image_url && equipment.image_url.startsWith('http')) { %>
+            <!-- External image (e.g., from Pexels or CDN) -->
+            <img src="<%= equipment.image_url %>" alt="<%= equipment.name %>" />
+          <% } else { %>
+            <!-- Local image (e.g., from /uploads folder) -->
+            <img src="/uploads/<%= equipment.image_url.replace(/^\/+/, '') %>" alt="<%= equipment.name %>" />
+          <% } %>
+          <div class="equipment-details">
+            <h3><%= equipment.name %></h3>
+            <p><%= equipment.description %></p>
+            <p class="equipment-price">
+              <strong>Price per Day:</strong> KES <%= equipment.price_per_day %>
+            </p>
+            <!-- ✅ Proper link to rent page with equipment ID -->
+            
+            <a class="rent-button" href="/rent-equipment?id=<%= equipment.equipment_id %>">Rent this</a>
+
+          </div>
         </div>
-      </div>
       <% }) %>
     </div>
   </body>

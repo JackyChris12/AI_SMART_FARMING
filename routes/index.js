@@ -97,7 +97,7 @@ router.post("/login", async (req, res) => {
 
     req.session.userId = user.id;
     req.session.role = user.role;
-    req.session.user = { id: user.id, name: user.name }; // or however your user object looks
+    req.session.user = { id: user.id, name: user.username }; // or however your user object looks
 
     res.redirect("/dashboard");
   } catch (err) {
@@ -123,9 +123,15 @@ router.get("/crops", isAuthenticated, (req, res) => {
   res.render("crops", { user: req.session });
 });
 
-// Diagnosis page (GET)
 router.get("/diagnosis", isAuthenticated, (req, res) => {
-  res.render("diagnosis", { response: null, user: req.session });
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
+  res.render("diagnosis", {
+    name: req.session.user.name,
+    user: req.session.user,
+  });
 });
 
 // Diagnosis page (POST)
@@ -182,26 +188,21 @@ router.post(
       });
     }
   }
-);
-
-// Equipment routes
-router.get("/rent-equipment", isAuthenticated, (req, res) => {
-  res.render("rent-equipment", { user: req.session });
-});
-
-// GET /equipments - show all equipment
+);// SHOW ALL EQUIPMENT
 router.get("/equipment", async (req, res) => {
   try {
-    const db = await initializeConnection(); // get db connection
+    const db = await initializeConnection();
     const [rows] = await db.query("SELECT * FROM equipment");
-    res.render("equipment", { equipment: rows });
+    res.render("equipment", { equipment: rows }); // This sends all equipment to equipment.ejs
   } catch (err) {
     console.error("Error fetching equipment:", err);
     res.status(500).send("Error retrieving equipment from database");
   }
 });
+
+// SHOW RENT FORM FOR SPECIFIC EQUIPMENT (expects ?id= in URL)
 router.get("/rent-equipment", async (req, res) => {
-  const equipmentId = req.query.id;
+  const equipmentId = req.query.id; // ✅ Make sure the link to this page includes the ID: /rent-equipment?id=3
 
   if (!equipmentId) {
     return res.status(400).send("Missing equipment ID.");
@@ -210,7 +211,7 @@ router.get("/rent-equipment", async (req, res) => {
   try {
     const db = await initializeConnection();
     const [results] = await db.execute(
-      "SELECT * FROM equipment WHERE equipment_id = ?",
+      "SELECT * FROM equipment WHERE equipment_id = ?", 
       [equipmentId]
     );
 
@@ -218,35 +219,75 @@ router.get("/rent-equipment", async (req, res) => {
       return res.status(404).send("Equipment not found.");
     }
 
-    res.render("rent-equipment", { equipment: results[0] });
+    res.render("rent-equipment", { equipment: results[0] }); // ✅ Sends the selected equipment object
   } catch (error) {
     console.error("Error fetching equipment:", error);
     res.status(500).render("500.ejs");
   }
 });
 
-router.post("/submit-rent", async (req, res) => {
-  const { equipment_id, customer_name, customer_phone, start_date, end_date } =
-    req.body;
+// SUBMIT RENTAL FORM
+router.post("/rental-form", async (req, res) => {
+  const {
+    equipment_id,
+    start_date,
+    end_date,
+    customer_email,
+    customer_address,
+    rental_purpose,
+  } = req.body;
 
-  const sql = `
-    INSERT INTO rentals (equipment_id, customer_name, customer_phone, start_date, end_date)
-    VALUES (?, ?, ?, ?, ?)
-  `;
+  console.log("Submitted equipment_id:", equipment_id);
+
+  const farmer_id = req.session.user?.id; // ✅ Make sure user is logged in
+
+  if (!farmer_id) {
+    return res.status(401).send("Unauthorized: Please log in.");
+  }
 
   try {
     const db = await initializeConnection();
-    await db.execute(sql, [
-      equipment_id,
-      customer_name,
-      customer_phone,
-      start_date,
-      end_date,
-    ]);
+
+    // Fetch equipment to get owner and price
+    const [equipmentData] = await db.execute(
+      "SELECT owner_id, price_per_day FROM equipment WHERE equipment_id = ?",
+      [equipment_id] // ✅ Correct: match with DB column `id`
+    );
+
+    if (equipmentData.length === 0) {
+      return res.status(404).send("Equipment not found.");
+    }
+
+    const { owner_id, price_per_day } = equipmentData[0];
+
+    // Calculate rental duration and total cost
+    const days = Math.ceil(
+      (new Date(end_date) - new Date(start_date)) / (1000 * 60 * 60 * 24)
+    );
+    const total_cost = days * price_per_day;
+
+    // Save rental record
+    await db.execute(
+      `INSERT INTO rentals 
+        (equipment_id, farmer_id, owner_id, start_date, end_date, total_cost, status, customer_email, customer_address, rental_purpose, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, NOW())`,
+      [
+        equipment_id,
+        farmer_id,
+        owner_id,
+        start_date,
+        end_date,
+        total_cost,
+        customer_email,
+        customer_address,
+        rental_purpose,
+      ]
+    );
+
     res.send("Rental request submitted successfully!");
-  } catch (error) {
-    console.error("Error inserting rental:", error);
-    res.status(500).send("Failed to submit rental request.");
+  } catch (err) {
+    console.error("Rental request error:", err);
+    res.status(500).send("Server error while processing rental.");
   }
 });
 
@@ -346,28 +387,32 @@ router.post("/livestock/add", isAuthenticated, async (req, res) => {
     console.error("Livestock Insert Error:", error);
     res.status(500).send("An error occurred while adding livestock.");
   }
-});router.get('/livestock/logs/:id', async (req, res) => {
+});
+router.get("/livestock/logs/:id", async (req, res) => {
   const livestockId = req.params.id;
   try {
     const db = await initializeConnection();
-    const [livestockRows] = await db.query('SELECT * FROM livestock WHERE id = ?', [livestockId]);
-    const [logs] = await db.query('SELECT * FROM livestock_logs WHERE livestock_id = ? ORDER BY log_date DESC', [livestockId]);
+    const [livestockRows] = await db.query(
+      "SELECT * FROM livestock WHERE id = ?",
+      [livestockId]
+    );
+    const [logs] = await db.query(
+      "SELECT * FROM livestock_logs WHERE livestock_id = ? ORDER BY log_date DESC",
+      [livestockId]
+    );
 
     if (livestockRows.length === 0) {
-      return res.status(404).send('Livestock not found');
+      return res.status(404).send("Livestock not found");
     }
 
-    res.render('livestock_logs', {
+    res.render("livestock_logs", {
       livestock: livestockRows[0],
-      logs
+      logs,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
-
-
-
 
 module.exports = router;

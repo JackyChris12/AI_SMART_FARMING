@@ -1,24 +1,148 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Rent</title>
-  </head>
-  <body>
-   
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Equipment Rental Request</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2f7a2f;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+    input, select, textarea, button {
+      margin-top: 5px;
+      padding: 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 20px;
+      background-color: #2f7a2f;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #256625;
+    }
+  </style>
+</head>
+<body>
 
-      <label>Your Name:</label><br />
-      <input type="text" name="customer_name" required /><br /><br />
+  <h1>Equipment Rental Request</h1>
 
-      <label>Your Phone:</label><br />
-      <input type="text" name="customer_phone" required /><br /><br />
+  <form id="rental-form" method="POST" action="/rental-form">
+    
+   <input type="hidden" name="equipment_id" value="<%= equipment.equipment_id %>" />
 
-      <label>Start Date:</label><br />
-      <input type="date" name="start_date" required /><br /><br />
 
-      <label>End Date:</label><br />
-      <input type="date" name="end_date" required /><br /><br />
 
-      <button type="submit">Submit Rental Request</button>
-    </form>
-  </body>
+    <label for="customer_name">Your Full Name</label>
+    <input
+      type="text"
+      id="customer_name"
+      name="customer_name"
+      placeholder="Enter your full name"
+      required
+      minlength="3"
+    />
+
+    <label for="customer_phone">Phone Number</label>
+    <input
+      type="tel"
+      id="customer_phone"
+      name="customer_phone"
+      placeholder="+254 700 000 000"
+      pattern="^\+?\d{9,15}$"
+      title="Phone number with country code, e.g., +254700000000"
+      required
+    />
+
+    <label for="customer_email">Email Address (optional)</label>
+    <input
+      type="email"
+      id="customer_email"
+      name="customer_email"
+      placeholder="you@example.com"
+    />
+
+    <label for="customer_address">Address (for delivery or contact)</label>
+    <textarea
+      id="customer_address"
+      name="customer_address"
+      placeholder="Enter your address"
+      rows="3"
+    ></textarea>
+
+    <label for="start_date">Rental Start Date</label>
+    <input
+      type="date"
+      id="start_date"
+      name="start_date"
+      min=""
+      required
+    />
+
+    <label for="end_date">Rental End Date</label>
+    <input
+      type="date"
+      id="end_date"
+      name="end_date"
+      min=""
+      required
+    />
+
+    <label for="rental_purpose">Purpose of Rental</label>
+    <select id="rental_purpose" name="rental_purpose" required>
+      <option value="">Select purpose</option>
+      <option value="ploughing">Ploughing</option>
+      <option value="harvesting">Harvesting</option>
+      <option value="transport">Transport</option>
+      <option value="other">Other</option>
+    </select>
+
+    <button type="submit">Submit Rental Request</button>
+  </form>
+
+  <script>
+    // Set min dates for start_date and end_date to today and after start_date
+    const today = new Date().toISOString().split('T')[0];
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+
+    startDateInput.min = today;
+    endDateInput.min = today;
+
+    startDateInput.addEventListener('change', () => {
+      if (startDateInput.value) {
+        endDateInput.min = startDateInput.value;
+        if (endDateInput.value < startDateInput.value) {
+          endDateInput.value = startDateInput.value;
+        }
+      }
+    });
+  </script>
+
+</body>
 </html>

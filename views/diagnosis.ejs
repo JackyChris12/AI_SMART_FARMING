@@ -117,10 +117,8 @@
   <body>
     <%- include('partials/_header.ejs') %>
     <div class="diagnosis-container">
-      <h1>
-        Welcome, <span id="username">Farmer</span><br />How can AgroAI assist
-        your farm today?
-      </h1>
+      <h2>Welcome <%= name %>, how can AgroAI help your farm today?</h2>
+
 
       <div class="diagnosis-input-section">
         <label for="query">Ask about crop diseases or treatments</label>
