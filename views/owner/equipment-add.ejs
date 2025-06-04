@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+   
+<h2>Add New Equipment</h2>
+<form action="/dash/owner/equipment/add" method="POST">
+  <label>Name:</label><br>
+  <input name="name" required><br>
+  
+  <label>Description:</label><br>
+  <textarea name="description" required></textarea><br>
+  
+  <label>Price per day (KES):</label><br>
+  <input type="number" name="price_per_day" required><br>
+  
+  <label>Image URL:</label><br>
+  <input name="image_url"><br>
+  
+  <button type="submit">Add Equipment</button>
+</form>
+
+
+</body>
+</html>

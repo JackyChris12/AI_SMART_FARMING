@@ -1,120 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AgroAI Register</title>
-  <link rel="stylesheet" href="/css/main.css" />
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AgroAI Register</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: url("/images/farm-background.jpg") no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: url("/images/farm-background.jpg") no-repeat center center
+          fixed;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
 
-    .register-container {
-      background-color: rgba(255, 255, 255, 0.95);
-      padding: 2rem;
-      border-radius: 12px;
-      max-width: 450px;
-      width: 100%;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      text-align: center;
-    }
+      .register-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 450px;
+        width: 100%;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
 
-    h1 {
-      color: #2e7d32;
-      margin-bottom: 1.5rem;
-    }
+      h1 {
+        color: #2e7d32;
+        margin-bottom: 1.5rem;
+      }
 
-    label {
-      display: block;
-      margin: 0.75rem 0 0.3rem;
-      text-align: left;
-      color: #388e3c;
-      font-weight: bold;
-    }
+      label {
+        display: block;
+        margin: 0.75rem 0 0.3rem;
+        text-align: left;
+        color: #388e3c;
+        font-weight: bold;
+      }
 
-    input {
-      width: 100%;
-      padding: 0.7rem;
-      border: 2px solid #a5d6a7;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-    }
+      input {
+        width: 100%;
+        padding: 0.7rem;
+        border: 2px solid #a5d6a7;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+      }
 
-    input:focus {
-      border-color: #66bb6a;
-      background-color: #f1f8e9;
-    }
+      input:focus {
+        border-color: #66bb6a;
+        background-color: #f1f8e9;
+      }
 
-    button {
-      margin-top: 1.5rem;
-      padding: 0.75rem;
-      width: 100%;
-      border: none;
-      background-color: #388e3c;
-      color: white;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
+      button {
+        margin-top: 1.5rem;
+        padding: 0.75rem;
+        width: 100%;
+        border: none;
+        background-color: #388e3c;
+        color: white;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
 
-    button:hover {
-      background-color: #2e7d32;
-    }
+      button:hover {
+        background-color: #2e7d32;
+      }
 
-    .login-link {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-    }
+      .login-link {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+      }
 
-    .login-link a {
-      color: #2e7d32;
-      text-decoration: none;
-      font-weight: bold;
-    }
+      .login-link a {
+        color: #2e7d32;
+        text-decoration: none;
+        font-weight: bold;
+      }
 
-    .login-link a:hover {
-      text-decoration: underline;
-    }
+      .login-link a:hover {
+        text-decoration: underline;
+      }
 
-    .error {
-      color: red;
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="register-container">
-    <h1>🌾 Register for AgroAI</h1>
-    
-    <form action="/register" method="POST">
+      .error {
+        color: red;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="register-container">
+      <h1>🌾 Register for AgroAI</h1>
 
-      <label for="username">Username:</label>
-      <input type="text" name="username" id="username" required />
-      <label for="email">Email:</label>
-      <input type="email" name="email" id="email" required />
-      <label for="password">Password:</label>
-      <input type="password" name="password" id="password" required />
-      <button type="submit">Register</button>
-    </form>
-    <div class="login-link">
-      Already have an account? <a href="/login">Login here</a>
+      <form action="/register" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required />
+        <label for="role">Register as:</label>
+        <!-- <select name="role" id="role" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="farmer">Farmer</option>
+        <option value="owner">Owner</option>
+      </select> -->
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required />
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required />
+        <button type="submit">Register</button>
+      </form>
+      <div class="login-link">
+        Already have an account? <a href="/login">Login here</a>
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

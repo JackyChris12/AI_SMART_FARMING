@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+   
+<h2>Rental Requests</h2>
+<table>
+  <tr>
+    <th>Equipment</th>
+    <th>Renter</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Status</th>
+  </tr>
+  <% requests.forEach(req => { %>
+    <tr>
+      <td><%= req.equipment_name %></td>
+      <td><%= req.username %></td>
+      <td><%= req.start_date %></td>
+      <td><%= req.end_date %></td>
+      <td><%= req.status %></td>
+    </tr>
+  <% }) %>
+</table>
+
+
+</body>
+</html>

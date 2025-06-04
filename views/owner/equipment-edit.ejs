@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>Edit Equipment</h2>
+    <form
+      action="/dash/owner/equipment/<%= equipment.equipment_id %>/edit"
+      method="POST"
+    >
+      <label>Name:</label><br />
+      <input name="name" value="<%= equipment.name %>" required /><br />
+
+      <label>Description:</label><br />
+      <textarea name="description" required>
+<%= equipment.description %></textarea
+      ><br />
+
+      <label>Price per day (KES):</label><br />
+      <input
+        type="number"
+        name="price_per_day"
+        value="<%= equipment.price_per_day %>"
+        required
+      /><br />
+
+      <label>Image URL:</label><br />
+      <input name="image_url" value="<%= equipment.image_url %>" /><br />
+
+      <button type="submit">Update Equipment</button>
+    </form>
+  </body>
+</html>

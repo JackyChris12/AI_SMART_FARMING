@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+   
+<h2>My Equipment</h2>
+<a href="/dash/owner/equipment/add">Add New Equipment</a>
+<ul>
+  <% equipment.forEach(item => { %>
+    <li>
+      <strong><%= item.name %></strong><br>
+      <img src="<%= item.image_url %>" width="100"><br>
+      <%= item.description %><br>
+      KES <%= item.price_per_day %> per day
+      <br>
+      <a href="/dash/owner/equipment/<%= item.equipment_id %>/edit">Edit</a>
+      <form method="POST" action="/dash/owner/equipment/<%= item.equipment_id %>/delete" style="display:inline;">
+        <button type="submit" onclick="return confirm('Delete this item?')">Delete</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
+
+
+</body>
+</html>

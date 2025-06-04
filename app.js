@@ -28,6 +28,12 @@ app.use("/", routes);
 const logRoutes = require("./routes/logs");
 app.use("/logs", logRoutes);
 
+const adminRoutes = require("./routes/admin");
+const ownerRoutes = require("./routes/owner");
+
+app.use("/dash/admin", adminRoutes);
+app.use("/dash/owner", ownerRoutes);
+
 // Start server after DB connects
 initializeConnection()
   .then(() => {
@@ -38,3 +44,14 @@ initializeConnection()
   .catch((err) => {
     console.error("Failed to start server due to DB error:", err);
   });
+
+// generate-hash.js
+const bcrypt = require("bcrypt");
+
+const plainPassword = "owner123"; // choose your new password
+const saltRounds = 10;
+
+bcrypt.hash(plainPassword, saltRounds, (err, hash) => {
+  if (err) throw err;
+  console.log("Hashed password:", hash);
+});

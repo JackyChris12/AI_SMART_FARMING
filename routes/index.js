@@ -97,9 +97,20 @@ router.post("/login", async (req, res) => {
 
     req.session.userId = user.id;
     req.session.role = user.role;
-    req.session.user = { id: user.id, name: user.username }; // or however your user object looks
+    req.session.user = {
+      id: user.id,
+      name: user.username,
+      role: user.role,
+    };
+    // or however your user object looks
 
-    res.redirect("/dashboard");
+    if (user.role == "admin") {
+      res.redirect("/dash/admin");
+    } else if (user.role == "owner") {
+      res.redirect("/dash/owner");
+    } else {
+      res.redirect("/dashboard"); // or /equipment or wherever
+    }
   } catch (err) {
     console.error("Login error:", err);
     res.render("login", { error: "Login failed", user: req.session });
@@ -188,7 +199,7 @@ router.post(
       });
     }
   }
-);// SHOW ALL EQUIPMENT
+); // SHOW ALL EQUIPMENT
 router.get("/equipment", async (req, res) => {
   try {
     const db = await initializeConnection();
@@ -211,7 +222,7 @@ router.get("/rent-equipment", async (req, res) => {
   try {
     const db = await initializeConnection();
     const [results] = await db.execute(
-      "SELECT * FROM equipment WHERE equipment_id = ?", 
+      "SELECT * FROM equipment WHERE equipment_id = ?",
       [equipmentId]
     );
 
