@@ -33,39 +33,33 @@ router.get("/login", (req, res) => {
 // Register form
 router.get("/register", (req, res) => {
   res.render("register", { error: null, user: req.session });
-});
-router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
-  const role = "farmer"; // ✅ default role
-
-  // Debug log
-  console.log("Form submission:", { username, email, password, role });
-
-  // Validate form
-  if (!username || !email || !password || !role) {
-    return res.render("register", {
-      error: "Please fill in all fields",
-      user: req.session,
-    });
-  }
+});router.post('/register', async (req, res) => {
+  const db = await initializeConnection();
+  const { username, email, password, phone } = req.body;
 
   try {
-    const db = await initializeConnection();
+    // Check if email exists
+    const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+
+    if (existingUser.length > 0) {
+      // Email exists, send a message and redirect to login
+      return res.render('register', { error: 'Email already exists. Please login instead.' });
+    }
+
+    // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await db.execute(
-      "INSERT INTO users(username, email, password, role) VALUES (?, ?, ?, ?)",
-      [username, email, hashedPassword, role]
+    // Insert new user
+    await db.query(
+      'INSERT INTO users (username, email, password, phone) VALUES (?, ?, ?, ?)',
+      [username, email, hashedPassword, phone || null]
     );
 
-    res.redirect("/login");
-  } catch (error) {
-    console.error("🔥 Registration SQL error:", error.message);
-    console.error("🔥 Full error object:", error); // optional for deeper debug
-    res.render("register", {
-      error: "Registration failed",
-      user: req.session,
-    });
+    // Redirect to login after successful registration
+    res.redirect('/login');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
   }
 });
 
@@ -98,10 +92,12 @@ router.post("/login", async (req, res) => {
     req.session.userId = user.id;
     req.session.role = user.role;
     req.session.user = {
-      id: user.id,
-      name: user.username,
-      role: user.role,
-    };
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  phone: user.phone
+};
+
     // or however your user object looks
 
     if (user.role == "admin") {
@@ -271,11 +267,19 @@ router.post("/rental-form", async (req, res) => {
 
     const { owner_id, price_per_day } = equipmentData[0];
 
-    // Calculate rental duration and total cost
-    const days = Math.ceil(
-      (new Date(end_date) - new Date(start_date)) / (1000 * 60 * 60 * 24)
-    );
-    const total_cost = days * price_per_day;
+   
+
+    if (isNaN(start) || isNaN(end) || end < start) {
+  return res.status(400).send("Invalid rental dates: End must be after Start.");
+}
+
+const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+if (duration <= 0) {
+  return res.status(400).send("Rental duration must be at least 1 day.");
+}
+    const total_cost = price_per_day * duration;
+
 
     // Save rental record
     await db.execute(
@@ -425,5 +429,31 @@ router.get("/livestock/logs/:id", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
+router.get('/farmer/profile', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login'); // or return res.status(403).send("Not logged in");
+  }
+
+  try {
+    const db = await initializeConnection();
+
+    const [requests] = await db.query(`
+      SELECT rental_requests.*, users.username AS farmer_name, equipment.name AS equipment_name
+      FROM rental_requests
+      JOIN users ON rental_requests.user_id = users.id
+      JOIN equipment ON rental_requests.equipment_id =equipment.equipment_id
+      WHERE users.id = ?
+    `, [req.session.user.id]);
+
+    res.render('farmer/profile', { requests });
+  } catch (error) {
+    console.error('Failed to load farmer profile:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 
 module.exports = router;

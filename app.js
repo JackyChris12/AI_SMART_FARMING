@@ -34,6 +34,11 @@ const ownerRoutes = require("./routes/owner");
 app.use("/dash/admin", adminRoutes);
 app.use("/dash/owner", ownerRoutes);
 
+const farmerRoutes = require('./routes/farmer');
+app.use('/dash/farmer/profile', farmerRoutes);
+
+
+
 // Start server after DB connects
 initializeConnection()
   .then(() => {

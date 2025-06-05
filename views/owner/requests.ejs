@@ -1,32 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Requests</title>
+  <link rel="stylesheet" href="/path/to/bootstrap.css"> <!-- Optional Bootstrap -->
 </head>
 <body>
-   
-<h2>Rental Requests</h2>
-<table>
-  <tr>
-    <th>Equipment</th>
-    <th>Renter</th>
-    <th>Start</th>
-    <th>End</th>
-    <th>Status</th>
-  </tr>
-  <% requests.forEach(req => { %>
-    <tr>
-      <td><%= req.equipment_name %></td>
-      <td><%= req.username %></td>
-      <td><%= req.start_date %></td>
-      <td><%= req.end_date %></td>
-      <td><%= req.status %></td>
-    </tr>
-  <% }) %>
-</table>
-
-
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Farmer</th>
+        <th>Equipment</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Total Price</th>
+        <th>Status / Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% requests.forEach(request => { %>
+        <tr>
+          <td><%= request.farmer_name %></td>
+          <td><%= request.equipment_name %></td>
+          <td><%= request.start_date %></td>
+          <td><%= request.end_date %></td>
+          <td><%= request.total_cost %></td>
+          <td>
+            <% if (request.status === 'pending') { %>
+              <form action="/dash/owner/requests/<%= request.rental_id %>/approve" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+              </form>
+              <form action="/dash/owner/requests/<%= request.rental_id %>/reject" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+              </form>
+            <% } else { %>
+              <span class="badge <%= request.status === 'approved' ? 'bg-success' : 'bg-danger' %>">
+                <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
+              </span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
 </body>
 </html>

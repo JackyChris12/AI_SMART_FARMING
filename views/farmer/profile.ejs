@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Profile</title>
+</head>
+<body>
+  <h2>Welcome, <%= profile.user.username %>!</h2>
+  <p>Email: <%= profile.user.email %></p>
+  <p>Phone: <%= profile.user.phone %></p>
+
+  <h3>My Equipment Requests</h3>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Equipment</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Total Cost</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% profile.rentals.forEach(r => { %>
+        <tr>
+          <td><%= r.equipment_name %></td>
+          <td><%= r.start_date %></td>
+          <td><%= r.end_date %></td>
+          <td><%= r.total_cost %></td>
+          <td>
+            <% if (r.status === 'pending') { %>
+              <span style="color: orange;"><%= r.status %></span>
+            <% } else if (r.status === 'approved') { %>
+              <span style="color: green;"><%= r.status %></span>
+            <% } else { %>
+              <span style="color: red;"><%= r.status %></span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</body>
+</html>

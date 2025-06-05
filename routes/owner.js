@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { initializeConnection } = require('../modules/db'); // adjust the path as needed
+const { initializeConnection} = require('../modules/db'); // adjust the path as needed
 
 
 
@@ -67,25 +67,75 @@ router.post('/equipment/:id/delete', isOwner, async (req, res) => {
   await conn.execute('DELETE FROM equipment WHERE equipment_id = ? AND owner_id = ?', [req.params.id, req.session.userId]);
   res.redirect('/dash/owner/equipment');
 });
+// Helper: Format KES
+function formatCurrencyKES(amount) {
+  return new Intl.NumberFormat('en-KE', {
+    style: 'currency',
+    currency: 'KES',
+    minimumFractionDigits: 2,
+  }).format(amount);
+}
 
-// GET /dash/owner/requests - View rental requests
+// Helper: Format readable date
+function formatDateReadable(dateStr) {
+  return new Date(dateStr).toLocaleDateString("en-KE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+
 router.get('/requests', isOwner, async (req, res) => {
   const conn = await initializeConnection();
-  const [requests] = await conn.execute(
-    `SELECT r.*, e.name AS equipment_name, u.username FROM rental_requests r
+  const [rawRequests] = await conn.execute(
+    `SELECT 
+        r.*, 
+        e.name AS equipment_name, 
+        u.username AS farmer_name
+     FROM rentals r
      JOIN equipment e ON r.equipment_id = e.equipment_id
-     JOIN users u ON r.user_id = u.id
-     WHERE e.owner_id = ?`,
-    [req.session.userId]
+     JOIN users u ON r.farmer_id = u.id
+     WHERE r.owner_id = ?`,
+    [req.session.user.id]
   );
-  res.render('owner/requests', { requests });
+
+  // Format data before rendering
+  const requests = rawRequests.map(r => ({
+    ...r,
+    start_date: formatDateReadable(r.start_date),
+    end_date: formatDateReadable(r.end_date),
+    total_cost: formatCurrencyKES(r.total_cost),
+  }));
+
+  res.render('owner/requests', { user: req.session.user, requests });
 });
+
+// POST /dash/owner/requests/:id/approve
+router.post('/requests/:id/approve', isOwner, async (req, res) => {
+  const conn = await initializeConnection();
+  await conn.execute(
+    `UPDATE rentals SET status = 'approved' WHERE rental_id = ? AND owner_id = ?`,
+    [req.params.id, req.session.user.id]
+  );
+  res.redirect('/dash/owner/requests');
+});
+
+// POST /dash/owner/requests/:id/reject
+router.post('/requests/:id/reject', isOwner, async (req, res) => {
+  const conn = await initializeConnection();
+  await conn.execute(
+    `UPDATE rentals SET status = 'rejected' WHERE rental_id = ? AND owner_id = ?`,
+    [req.params.id, req.session.user.id]
+  );
+  res.redirect('/dash/owner/requests');
+});
+
 
 // GET /dash/owner/earnings - View earnings summary
 router.get('/earnings', isOwner, async (req, res) => {
   const conn = await initializeConnection();
   const [earnings] = await conn.execute(
-    `SELECT SUM(total_price) AS total_earned FROM rental_requests r
+    `SELECT SUM(total_cost) AS total_earned FROM rentals r
      JOIN equipment e ON r.equipment_id = e.equipment_id
      WHERE e.owner_id = ? AND r.status = 'approved'`,
     [req.session.userId]
@@ -95,4 +145,4 @@ router.get('/earnings', isOwner, async (req, res) => {
 
 module.exports = router;
 
-module.exports = router;
+

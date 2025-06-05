@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>My Rental Requests</h2>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Equipment</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Total Cost</th>
+    <th>Status</th>
+  </tr>
+  <% rentals.forEach(r => { %>
+    <tr>
+      <td><%= r.equipment_name %></td>
+      <td><%= new Date(r.start_date).toLocaleDateString() %></td>
+      <td><%= new Date(r.end_date).toLocaleDateString() %></td>
+      <td>KES <%= r.total_cost.toFixed(2) %></td>
+      <td><%= r.status %></td>
+    </tr>
+  <% }) %>
+</table>
+
+</body>
+</html>

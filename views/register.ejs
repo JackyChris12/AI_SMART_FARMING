@@ -116,6 +116,10 @@
         <input type="email" name="email" id="email" required />
         <label for="password">Password:</label>
         <input type="password" name="password" id="password" required />
+        <% if (typeof error !== 'undefined') { %>
+    <p style="color: red;"><%= error %></p>
+  <% } %>
+
         <button type="submit">Register</button>
       </form>
       <div class="login-link">
