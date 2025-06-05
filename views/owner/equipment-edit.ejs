@@ -3,7 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Edit Equipment</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+
+      label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
   </head>
   <body>
     <h2>Edit Equipment</h2>
@@ -11,24 +65,37 @@
       action="/dash/owner/equipment/<%= equipment.equipment_id %>/edit"
       method="POST"
     >
-      <label>Name:</label><br />
-      <input name="name" value="<%= equipment.name %>" required /><br />
+      <label for="name">Name:</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        value="<%= equipment.name %>"
+        required
+      />
 
-      <label>Description:</label><br />
-      <textarea name="description" required>
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" required>
 <%= equipment.description %></textarea
-      ><br />
+      >
 
-      <label>Price per day (KES):</label><br />
+      <label for="price_per_day">Price per day (KES):</label>
       <input
         type="number"
+        id="price_per_day"
         name="price_per_day"
         value="<%= equipment.price_per_day %>"
+        step="0.01"
         required
-      /><br />
+      />
 
-      <label>Image URL:</label><br />
-      <input name="image_url" value="<%= equipment.image_url %>" /><br />
+      <label for="image_url">Image URL:</label>
+      <input
+        type="text"
+        id="image_url"
+        name="image_url"
+        value="<%= equipment.image_url %>"
+      />
 
       <button type="submit">Update Equipment</button>
     </form>

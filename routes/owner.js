@@ -1,9 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const { initializeConnection} = require('../modules/db'); // adjust the path as needed
+const multer = require("multer");
+const path = require("path");
+const { initializeConnection } = require('../modules/db');
 
-
-
+// Configure multer for file upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../public/uploads'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+const upload = multer({ storage });
 
 // Middleware to protect owner routes
 function isOwner(req, res, next) {
@@ -16,9 +27,9 @@ router.get("/", (req, res) => {
   if (req.session.role !== "owner") {
     return res.status(403).send("Access denied");
   }
-
   res.render("owner/dash", { user: req.session.user });
 });
+
 // GET /dash/owner/equipment - Owner's equipment list
 router.get('/equipment', isOwner, async (req, res) => {
   const conn = await initializeConnection();
@@ -31,15 +42,28 @@ router.get('/equipment/add', isOwner, (req, res) => {
   res.render('owner/equipment-add');
 });
 
-// POST /dash/owner/equipment/add - Handle equipment creation
-router.post('/equipment/add', isOwner, async (req, res) => {
-  const { name, description, price_per_day, image_url } = req.body;
-  const conn = await initializeConnection();
-  await conn.execute(
+// POST /dash/owner/equipment/add - Handle equipment creation with image upload
+router.post('/equipment/add', isOwner, upload.single('image'), async (req, res) => {
+  const { name, description, price_per_day } = req.body;
+  const image_url = `/uploads/${req.file.filename}`;
+
+  try{
+const conn = await initializeConnection();
+ await conn.execute(
     'INSERT INTO equipment (name, description, price_per_day, image_url, owner_id) VALUES (?, ?, ?, ?, ?)',
     [name, description, price_per_day, image_url, req.session.userId]
   );
-  res.redirect('/dash/owner/equipment');
+   res.redirect('/dash/owner/equipment');
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+
+
+
+ 
+ 
 });
 
 // GET /dash/owner/equipment/:id/edit - Edit form
@@ -50,14 +74,24 @@ router.get('/equipment/:id/edit', isOwner, async (req, res) => {
   res.render('owner/equipment-edit', { equipment: rows[0] });
 });
 
-// POST /dash/owner/equipment/:id/edit - Handle edit
-router.post('/equipment/:id/edit', isOwner, async (req, res) => {
-  const { name, description, price_per_day, image_url } = req.body;
+// POST /dash/owner/equipment/:id/edit - Handle edit with optional new image
+router.post('/equipment/:id/edit', isOwner, upload.single('image'), async (req, res) => {
+  const { name, description, price_per_day } = req.body;
   const conn = await initializeConnection();
-  await conn.execute(
-    'UPDATE equipment SET name = ?, description = ?, price_per_day = ?, image_url = ? WHERE equipment_id = ? AND owner_id = ?',
-    [name, description, price_per_day, image_url, req.params.id, req.session.userId]
-  );
+
+  if (req.file) {
+    const image_filename = req.file.filename;
+    await conn.execute(
+      'UPDATE equipment SET name = ?, description = ?, price_per_day = ?, image_url = ? WHERE equipment_id = ? AND owner_id = ?',
+      [name, description, price_per_day, image_filename, req.params.id, req.session.userId]
+    );
+  } else {
+    await conn.execute(
+      'UPDATE equipment SET name = ?, description = ?, price_per_day = ? WHERE equipment_id = ? AND owner_id = ?',
+      [name, description, price_per_day, req.params.id, req.session.userId]
+    );
+  }
+
   res.redirect('/dash/owner/equipment');
 });
 
@@ -67,7 +101,8 @@ router.post('/equipment/:id/delete', isOwner, async (req, res) => {
   await conn.execute('DELETE FROM equipment WHERE equipment_id = ? AND owner_id = ?', [req.params.id, req.session.userId]);
   res.redirect('/dash/owner/equipment');
 });
-// Helper: Format KES
+
+// Helpers
 function formatCurrencyKES(amount) {
   return new Intl.NumberFormat('en-KE', {
     style: 'currency',
@@ -76,7 +111,6 @@ function formatCurrencyKES(amount) {
   }).format(amount);
 }
 
-// Helper: Format readable date
 function formatDateReadable(dateStr) {
   return new Date(dateStr).toLocaleDateString("en-KE", {
     year: "numeric",
@@ -85,6 +119,7 @@ function formatDateReadable(dateStr) {
   });
 }
 
+// GET /dash/owner/requests
 router.get('/requests', isOwner, async (req, res) => {
   const conn = await initializeConnection();
   const [rawRequests] = await conn.execute(
@@ -99,7 +134,6 @@ router.get('/requests', isOwner, async (req, res) => {
     [req.session.user.id]
   );
 
-  // Format data before rendering
   const requests = rawRequests.map(r => ({
     ...r,
     start_date: formatDateReadable(r.start_date),
@@ -130,8 +164,7 @@ router.post('/requests/:id/reject', isOwner, async (req, res) => {
   res.redirect('/dash/owner/requests');
 });
 
-
-// GET /dash/owner/earnings - View earnings summary
+// GET /dash/owner/earnings
 router.get('/earnings', isOwner, async (req, res) => {
   const conn = await initializeConnection();
   const [earnings] = await conn.execute(
@@ -144,5 +177,3 @@ router.get('/earnings', isOwner, async (req, res) => {
 });
 
 module.exports = router;
-
-

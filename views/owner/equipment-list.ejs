@@ -1,30 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-   
-<h2>My Equipment</h2>
-<a href="/dash/owner/equipment/add">Add New Equipment</a>
-<ul>
-  <% equipment.forEach(item => { %>
-    <li>
-      <strong><%= item.name %></strong><br>
-      <img src="<%= item.image_url %>" width="100"><br>
-      <%= item.description %><br>
-      KES <%= item.price_per_day %> per day
-      <br>
-      <a href="/dash/owner/equipment/<%= item.equipment_id %>/edit">Edit</a>
-      <form method="POST" action="/dash/owner/equipment/<%= item.equipment_id %>/delete" style="display:inline;">
-        <button type="submit" onclick="return confirm('Delete this item?')">Delete</button>
-      </form>
-    </li>
-  <% }) %>
-</ul>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Equipment List</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f9fc;
+        padding: 2rem;
+        color: #333;
+      }
 
+      h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
 
-</body>
+      a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+      }
+
+      li {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-left: 5px solid #007bff;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      img {
+        margin: 0.5rem 0;
+        border-radius: 4px;
+      }
+
+      form {
+        display: inline;
+      }
+
+      button {
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: 1rem;
+      }
+
+      button:hover {
+        background-color: #c82333;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>My Equipment</h2>
+    <a href="/dash/owner/equipment/add">Add New Equipment</a>
+    <ul>
+      <% equipment.forEach(item => { %>
+      <li>
+        <strong><%= item.name %></strong><br />
+        <img src="<%= item.image_url %>" width="100" /><br />
+        <%= item.description %><br />
+        KES <%= item.price_per_day %> per day
+        <br />
+        <a href="/dash/owner/equipment/<%= item.equipment_id %>/edit">Edit</a>
+        <form
+          method="POST"
+          action="/dash/owner/equipment/<%= item.equipment_id %>/delete"
+          style="display: inline"
+        >
+          <button type="submit" onclick="return confirm('Delete this item?')">
+            Delete
+          </button>
+        </form>
+      </li>
+      <% }) %>
+    </ul>
+  </body>
 </html>

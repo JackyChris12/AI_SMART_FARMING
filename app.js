@@ -20,6 +20,9 @@ app.use(
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static("public")); // <-- This makes /public accessible at /
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Routes
 const routes = require("./routes/index");
