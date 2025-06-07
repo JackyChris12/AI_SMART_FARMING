@@ -433,21 +433,37 @@ router.get("/livestock/logs/:id", async (req, res) => {
 
 router.get('/farmer/profile', async (req, res) => {
   if (!req.session.user) {
-    return res.redirect('/login'); // or return res.status(403).send("Not logged in");
+    return res.redirect('/login');
   }
 
   try {
     const db = await initializeConnection();
 
-    const [requests] = await db.query(`
-      SELECT rental_requests.*, users.username AS farmer_name, equipment.name AS equipment_name
+    // Get user info
+    const [userRows] = await db.query('SELECT * FROM users WHERE id = ?', [req.session.user.id]);
+    const user = userRows[0];
+
+    // Get equipment rental requests
+    const [rentals] = await db.query(`
+      SELECT rental_requests.*, equipment.name AS equipment_name
       FROM rental_requests
-      JOIN users ON rental_requests.user_id = users.id
-      JOIN equipment ON rental_requests.equipment_id =equipment.equipment_id
-      WHERE users.id = ?
+      JOIN equipment ON rental_requests.equipment_id = equipment.equipment_id
+      WHERE rental_requests.user_id = ?
     `, [req.session.user.id]);
 
-    res.render('farmer/profile', { requests });
+    // Get farmer activities
+    const [activities] = await db.query(`
+      SELECT * FROM farmer_activities WHERE user_id = ?
+      ORDER BY date DESC
+    `, [req.session.user.id]);
+
+    res.render('farmer/profile', {
+      profile: {
+        user,
+        rentals,
+        activities
+      }
+    });
   } catch (error) {
     console.error('Failed to load farmer profile:', error);
     res.status(500).send('Internal Server Error');

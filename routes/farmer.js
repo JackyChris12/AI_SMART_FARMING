@@ -34,4 +34,38 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+// Show farm activities
+router.get('/activities', async (req, res) => {
+  const farmerId = req.session.user.id;
+
+  try {
+    const [activities] = await db.execute(
+      'SELECT * FROM farm_activities WHERE farmer_id = ? ORDER BY created_at DESC',
+      [farmerId]
+    );
+    res.render('farmer-activities', { activities, user: req.session.user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching activities');
+  }
+});
+
+// Post new farm activity
+router.post('/activities',async (req, res) => {
+  const { description, category } = req.body;
+  const farmerId = req.session.user.id;
+
+  try {
+    await db.execute(
+      'INSERT INTO farm_activities (farmer_id, description, category) VALUES (?, ?, ?)',
+      [farmerId, description, category]
+    );
+    res.redirect('/farmer/activities');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error saving activity');
+  }
+});
+
 module.exports = router;

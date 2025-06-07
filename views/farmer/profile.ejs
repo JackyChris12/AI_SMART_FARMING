@@ -1,43 +1,181 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>My Profile</title>
-</head>
-<body>
-  <h2>Welcome, <%= profile.user.username %>!</h2>
-  <p>Email: <%= profile.user.email %></p>
-  <p>Phone: <%= profile.user.phone %></p>
+  <head>
+    <title>My Profile</title>
+    <style>
+      body {
+        display: flex;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
 
-  <h3>My Equipment Requests</h3>
-  <table border="1">
-    <thead>
-      <tr>
-        <th>Equipment</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-        <th>Total Cost</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% profile.rentals.forEach(r => { %>
-        <tr>
-          <td><%= r.equipment_name %></td>
-          <td><%= r.start_date %></td>
-          <td><%= r.end_date %></td>
-          <td><%= r.total_cost %></td>
-          <td>
-            <% if (r.status === 'pending') { %>
-              <span style="color: orange;"><%= r.status %></span>
-            <% } else if (r.status === 'approved') { %>
-              <span style="color: green;"><%= r.status %></span>
-            <% } else { %>
-              <span style="color: red;"><%= r.status %></span>
-            <% } %>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</body>
+      .sidebar {
+        width: 220px;
+        height: 100vh;
+        background-color: #2e7d32;
+        color: white;
+        padding: 20px;
+      }
+
+      .sidebar a {
+        color: white;
+        display: block;
+        margin-bottom: 15px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .sidebar a:hover {
+        text-decoration: underline;
+      }
+
+      .content {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .section {
+        display: none;
+      }
+
+      .section.active {
+        display: block;
+      }
+
+      form div {
+        margin-bottom: 10px;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="file"] {
+        padding: 5px;
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+      <h3>My Records</h3>
+      <a onclick="showSection('info')">My Info</a>
+      <form
+        action="/farmer/update-profile"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <div>
+          <label>Update Email:</label>
+          <input
+            type="email"
+            name="email"
+            value="<%= profile.user.email %>"
+            required
+          />
+        </div>
+        <div>
+          <label>Update Phone:</label>
+          <input
+            type="text"
+            name="phone"
+            value="<%= profile.user.phone %>"
+            required
+          />
+        </div>
+        <div>
+          <label>Profile Image:</label>
+          <% if (profile.user.profile_image) { %>
+          <img
+            src="/uploads/<%= profile.user.profile_image %>"
+            width="100"
+            alt="Profile Image"
+          />
+          <% } %>
+          <input type="file" name="profile_image" />
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
+
+      <a onclick="showSection('equipment')">Equipment Requests</a>
+      <a onclick="showSection('livestock')">Livestock Monitoring</a>
+      <a onclick="showSection('activities')">Farm Activity Log</a>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+      <!-- Section: My Info -->
+      <div id="info" class="section active">
+        <h2>Welcome, <%= profile.user.username %>!</h2>
+        <p>Email: <%= profile.user.email %></p>
+        <p>Phone: <%= profile.user.phone %></p>
+      </div>
+
+      <!-- Section: Equipment Requests -->
+      <div id="equipment" class="section">
+        <h3>My Equipment Requests</h3>
+        <table border="1">
+          <thead>
+            <tr>
+              <th>Equipment</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Total Cost</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% profile.rentals.forEach(r => { %>
+            <tr>
+              <td><%= r.equipment_name %></td>
+              <td><%= r.start_date %></td>
+              <td><%= r.end_date %></td>
+              <td><%= r.total_cost %></td>
+              <td>
+                <% if (r.status === 'pending') { %>
+                <span style="color: orange"><%= r.status %></span>
+                <% } else if (r.status === 'approved') { %>
+                <span style="color: green"><%= r.status %></span>
+                <% } else { %>
+                <span style="color: red"><%= r.status %></span>
+                <% } %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Section: Livestock Monitoring -->
+      <div id="livestock" class="section">
+        <h3>Livestock Monitoring</h3>
+        <p>All your livestock data will appear here.</p>
+        <!-- Add livestock data display here if available -->
+      </div>
+
+      <!-- Section: Farm Activity Log -->
+      <div id="activities" class="section">
+        <h3>Farm Activity Log</h3>
+        <% if (profile.activities && profile.activities.length > 0) { %>
+        <ul>
+          <% profile.activities.forEach(a => { %>
+          <li>
+            <strong><%= a.date.toISOString().slice(0, 10) %>:</strong> <%=
+            a.activity %>
+          </li>
+          <% }) %>
+        </ul>
+        <% } else { %>
+        <p>No activity recorded yet.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <script>
+      function showSection(id) {
+        document.querySelectorAll(".section").forEach((sec) => {
+          sec.classList.remove("active");
+        });
+        document.getElementById(id).classList.add("active");
+      }
+    </script>
+  </body>
 </html>
