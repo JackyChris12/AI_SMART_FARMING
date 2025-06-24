@@ -3,170 +3,75 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroAI Interface - Diagnosis</title>
     <link rel="stylesheet" href="/css/main.css" />
-    <title>AgroAI Interface</title>
-    <style>
-      body {
-        background: #eef7ee;
-        margin: 0;
-        font-family: Arial, sans-serif;
-      }
-
-      .diagnosis-container {
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 20px;
-        background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        font-size: 24px;
-      }
-
-      h1 {
-        font-size: 22px;
-        color: #2e7d32;
-        margin-bottom: 20px;
-      }
-
-      .diagnosis-input-section {
-        background-color: #f5f5f5;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-      }
-
-      label {
-        font-size: 14px;
-        color: #333;
-        margin-bottom: 8px;
-        display: block;
-        text-align: left;
-      }
-
-      input[type="text"] {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 16px;
-        margin-bottom: 10px;
-      }
-
-      .diagnosis-buttons {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .diagnosis-buttons button {
-        font-size: 16px;
-        padding: 8px 12px;
-        background-color: #2e7d32;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-
-      .diagnosis-buttons button:hover {
-        background-color: #27672b;
-      }
-
-      .diagnosis-buttons span {
-        font-size: 16px;
-        color: #555;
-      }
-
-      .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 10px;
-      }
-
-      .action-buttons button {
-        flex: 1 1 calc(50% - 10px);
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        cursor: pointer;
-        background-color: #e0e0e0;
-        transition: background-color 0.3s ease;
-      }
-
-      .action-buttons button:hover {
-        background-color: #d5d5d5;
-      }
-
-      .action-buttons button:last-child {
-        background-color: #ff6200;
-        color: white;
-      }
-
-      .response {
-        margin-top: 20px;
-        text-align: left;
-        color: #444;
-        font-size: 15px;
-      }
-    </style>
   </head>
   <body>
     <%- include('partials/_header.ejs') %>
-    <div class="diagnosis-container">
-      <h2>Welcome <%= name %>, how can AgroAI help your farm today?</h2>
 
+    <div class="layout">
+      <aside class="sidebar">
+        <h3>🕓 Diagnosis History</h3>
+        <ul id="historyList">
+          <% history.forEach((item, index) => { %>
+            <li data-question="<%= item.question %>">
+              Q<%= index + 1 %>: <%= item.question.slice(0, 30) %>...
+            </li>
+          <% }) %>
+        </ul>
+        <hr />
+        <button id="newChatBtn">➕ New Chat</button>
+      </aside>
 
-      <div class="diagnosis-input-section">
-        <label for="query">Ask about crop diseases or treatments</label>
-        <input
-          type="text"
-          id="query"
-          name="query"
-          placeholder="e.g., Maize blight or chicken health"
-        />
-        <div class="diagnosis-buttons">
-          <button title="Notifications">🔔</button>
-          <button onclick="askAgroAI()">
-            <span style="color: white">🌿</span> AgroAI
-          </button>
-          <button title="Let AgroAI Think">🤔 Think</button>
-          <span>AgroAI</span>
-          <button title="Scroll to Top">↑</button>
-        </div>
-      </div>
+      <main class="main-content">
+        <section class="diagnosis-container">
+          <h2>Welcome <%= user?.username || "Farmer" %>, how can AgroAI help your farm today?</h2>
 
-      <div class="action-buttons">
-        <button>🌱 Crop Diagnosis</button>
-        <button>🐔 Animal Health</button>
-        <button>🌾 Soil Insights</button>
-        <button>👨‍🌾 Farmer Profiles</button>
-        <button>🏡 Farm Management New</button>
-      </div>
+          <div class="diagnosis-input-section">
+            <label for="query">Ask about crop diseases or treatments</label>
+            <input
+              type="text"
+              id="query"
+              name="query"
+              placeholder="e.g., Maize blight or chicken health"
+            />
+            <div class="diagnosis-buttons">
+              <button title="Notifications">🔔</button>
+              <button id="askBtn"><span style="color:white">🌿</span> AgroAI</button>
+              <button title="Let AgroAI Think">🤔 Think</button>
+              <span id="username">AgroAI</span>
+              <button title="Scroll to Top" id="scrollTopBtn">↑</button>
+            </div>
+          </div>
 
-      <div id="response" class="response"></div>
+          <div class="action-buttons">
+            <button>🌱 Crop Diagnosis</button>
+            <button>🐔 Animal Health</button>
+            <button>🌾 Soil Insights</button>
+            <button>👨‍🌾 Farmer Profiles</button>
+            <button>🏡 Farm Management New</button>
+          </div>
+
+          <div id="response" class="response"></div>
+        </section>
+      </main>
     </div>
 
     <script>
-      // Username update (temporary local usage)
-      const username = localStorage.getItem("username") || "Farmer";
-      document.getElementById("username").textContent = username;
+      document.getElementById("username").textContent =
+        localStorage.getItem("username") || "Farmer";
 
-      // Ask AgroAI
       async function askAgroAI() {
-        const query = document.getElementById("query").value.trim();
+        const queryEl = document.getElementById("query");
         const responseBox = document.getElementById("response");
+        const query = queryEl.value.trim();
         if (!query) {
           responseBox.textContent =
             "Please enter a question about your crops or animals.";
           return;
         }
 
-        responseBox.textContent =
-          "Thinking... 🤔 (This can take a few seconds)";
+        responseBox.textContent = "Thinking... 🤔 (This can take a few seconds)";
 
         try {
           const res = await fetch("/diagnosis", {
@@ -175,14 +80,40 @@
             body: JSON.stringify({ query }),
           });
 
-          const data = await res.json();
-          responseBox.textContent = data.answer || "No answer received.";
-        } catch (error) {
-          console.error("AgroAI error:", error);
+          let data;
+          try {
+            data = await res.json();
+            responseBox.innerHTML = data.answer || "No answer received.";
+          } catch {
+            responseBox.textContent = await res.text();
+          }
+        } catch (err) {
+          console.error("AgroAI error:", err);
           responseBox.textContent =
             "There was a problem processing your question.";
         }
       }
+
+      document
+        .getElementById("askBtn")
+        .addEventListener("click", askAgroAI);
+
+      document
+        .getElementById("scrollTopBtn")
+        .addEventListener("click", () =>
+          window.scrollTo({ top: 0, behavior: "smooth" })
+        );
+
+      document
+        .getElementById("newChatBtn")
+        .addEventListener("click", () => location.reload());
+
+      document.querySelectorAll("#historyList li").forEach((item) => {
+        item.addEventListener("click", () => {
+          document.getElementById("query").value = item.getAttribute("data-question");
+          askAgroAI();
+        });
+      });
     </script>
   </body>
 </html>

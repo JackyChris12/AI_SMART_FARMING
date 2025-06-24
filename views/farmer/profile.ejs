@@ -45,126 +45,192 @@
       form div {
         margin-bottom: 10px;
       }
+
       input[type="text"],
       input[type="email"],
       input[type="file"] {
         padding: 5px;
         width: 200px;
       }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th, td {
+        border: 1px solid #999;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f0f0f0;
+      }
+
+      img {
+        margin-top: 5px;
+      }
     </style>
   </head>
   <body>
-    <!-- Sidebar Navigation -->
     <div class="sidebar">
       <h3>My Records</h3>
       <a onclick="showSection('info')">My Info</a>
-      <form
-        action="/farmer/update-profile"
-        method="POST"
-        enctype="multipart/form-data"
-      >
-        <div>
-          <label>Update Email:</label>
-          <input
-            type="email"
-            name="email"
-            value="<%= profile.user.email %>"
-            required
-          />
-        </div>
-        <div>
-          <label>Update Phone:</label>
-          <input
-            type="text"
-            name="phone"
-            value="<%= profile.user.phone %>"
-            required
-          />
-        </div>
-        <div>
-          <label>Profile Image:</label>
-          <% if (profile.user.profile_image) { %>
-          <img
-            src="/uploads/<%= profile.user.profile_image %>"
-            width="100"
-            alt="Profile Image"
-          />
-          <% } %>
-          <input type="file" name="profile_image" />
-        </div>
-        <button type="submit">Save Changes</button>
-      </form>
-
       <a onclick="showSection('equipment')">Equipment Requests</a>
-      <a onclick="showSection('livestock')">Livestock Monitoring</a>
+      <a onclick="showSection('livestock')">My Livestock</a>
       <a onclick="showSection('activities')">Farm Activity Log</a>
     </div>
 
-    <!-- Content Area -->
     <div class="content">
       <!-- Section: My Info -->
       <div id="info" class="section active">
         <h2>Welcome, <%= profile.user.username %>!</h2>
-        <p>Email: <%= profile.user.email %></p>
-        <p>Phone: <%= profile.user.phone %></p>
+        <p><strong>Email:</strong> <%= profile.user.email %></p>
+        <p><strong>Phone:</strong> <%= profile.user.phone %></p>
+
+        <form action="/farmer/update-profile" method="POST" enctype="multipart/form-data">
+          <div>
+            <label>Update Email:</label>
+            <input type="email" name="email" value="<%= profile.user.email %>" required />
+          </div>
+          <div>
+            <label>Update Phone:</label>
+            <input type="text" name="phone" value="<%= profile.user.phone %>" required />
+          </div>
+          <div>
+            <label>Profile Image:</label>
+            <% if (profile.user.profile_image) { %>
+              <img src="/uploads/<%= profile.user.profile_image %>" width="100" alt="Profile Image" />
+            <% } %>
+            <input type="file" name="profile_image" />
+          </div>
+          <button type="submit">Save Changes</button>
+        </form>
       </div>
 
       <!-- Section: Equipment Requests -->
       <div id="equipment" class="section">
         <h3>My Equipment Requests</h3>
-        <table border="1">
-          <thead>
-            <tr>
-              <th>Equipment</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Total Cost</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% profile.rentals.forEach(r => { %>
-            <tr>
-              <td><%= r.equipment_name %></td>
-              <td><%= r.start_date %></td>
-              <td><%= r.end_date %></td>
-              <td><%= r.total_cost %></td>
-              <td>
-                <% if (r.status === 'pending') { %>
-                <span style="color: orange"><%= r.status %></span>
-                <% } else if (r.status === 'approved') { %>
-                <span style="color: green"><%= r.status %></span>
-                <% } else { %>
-                <span style="color: red"><%= r.status %></span>
-                <% } %>
-              </td>
-            </tr>
-            <% }) %>
-          </tbody>
-        </table>
+        <% if (profile.rentals && profile.rentals.length > 0) { %>
+          <table>
+            <thead>
+              <tr>
+                <th>Equipment</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Total Cost</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% profile.rentals.forEach(r => { %>
+                <tr>
+                  <td><%= r.equipment_name %></td>
+                  <td><%= r.start_date %></td>
+                  <td><%= r.end_date %></td>
+                  <td><%= r.total_cost %></td>
+                  <td>
+                    <% if (r.status === 'pending') { %>
+                      <span style="color: orange;"><%= r.status %></span>
+                    <% } else if (r.status === 'approved') { %>
+                      <span style="color: green;"><%= r.status %></span>
+                    <% } else { %>
+                      <span style="color: red;"><%= r.status %></span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p>No equipment requests found.</p>
+        <% } %>
       </div>
 
-      <!-- Section: Livestock Monitoring -->
+      <!-- Section: Livestock -->
       <div id="livestock" class="section">
-        <h3>Livestock Monitoring</h3>
-        <p>All your livestock data will appear here.</p>
-        <!-- Add livestock data display here if available -->
+        <h3>My Livestock</h3>
+        <% if (profile.livestock && profile.livestock.length > 0) { %>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Breed</th>
+                <th>Location</th>
+                <th>Birth Date</th>
+                <th>Added On</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% profile.livestock.forEach((animal, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= animal.livestock_type %></td>
+                  <td><%= animal.breed %></td>
+                  <td><%= animal.region %></td>
+                  <td><%= animal.dob %></td>
+                  <td><%= new Date(animal.created_at).toLocaleString() %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p>No livestock records found.</p>
+        <% } %>
       </div>
 
       <!-- Section: Farm Activity Log -->
       <div id="activities" class="section">
         <h3>Farm Activity Log</h3>
+
         <% if (profile.activities && profile.activities.length > 0) { %>
-        <ul>
-          <% profile.activities.forEach(a => { %>
-          <li>
-            <strong><%= a.date.toISOString().slice(0, 10) %>:</strong> <%=
-            a.activity %>
-          </li>
-          <% }) %>
-        </ul>
+          <ul>
+            <% profile.activities.forEach(a => { %>
+              <li><strong><%= new Date(a.created_at).toLocaleDateString() %>:</strong> <%= a.description %></li>
+            <% }) %>
+          </ul>
         <% } else { %>
-        <p>No activity recorded yet.</p>
+          <p>No general activities found.</p>
+        <% } %>
+
+        <hr />
+
+        <!-- Livestock Logs -->
+        <h4>Livestock Health Logs</h4>
+        <% if (profile.logs && profile.logs.length > 0) { %>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Livestock ID</th>
+                <th>Log Date</th>
+                <th>Feed</th>
+                <th>Symptoms</th>
+                <th>Production</th>
+                <th>Notes</th>
+                <th>Logged On</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% profile.logs.forEach((log, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= log.livestock %></td>
+                  <td><%= log.log_date %></td>
+                  <td><%= log.feed %></td>
+                  <td><%= log.symptoms %></td>
+                  <td><%= log.production %></td>
+                  <td><%= log.notes %></td>
+                  <td><%= new Date(log.created_at).toLocaleString() %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p>No livestock logs available.</p>
         <% } %>
       </div>
     </div>

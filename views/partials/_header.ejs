@@ -1,39 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="AgroAI helps farmers diagnose crop and livestock issues, manage equipment, and more."
-    />
-    <title>AgroAI - Smart Farming Assistant</title>
-    <link rel="stylesheet" href="/css/styles.css" />
-  </head>
-  <body>
-    <header class="main-header">
-      <div class="container">
-        <div class="logo">
-          <a href="/">Agro<span>AI</span></a>
-        </div>
-        <nav class="main-nav" aria-label="Main Navigation">
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/equipment">Equipment</a></li>
-            <li><a href="/crops">Crop Monitoring</a></li>
-            <li><a href="/livestock">Livestock Monitoring</a></li>
-            <li><a href="/diagnosis">Diagnosis</a></li>
+<header class="main-header">
+  <div class="container">
+    <div class="logo">
+      <a href="/">Agro<span>AI</span></a>
+    </div>
 
-            <% if (user && user.id) { %>
-            <li><a href="/dashboard">Dashboard</a></li>
-            <li><a href="/logout">Logout</a></li>
-            <% } else { %>
-            <li><a href="/register">Register</a></li>
-            <li><a href="/login">Login</a></li>
-            <% } %>
-          </ul>
-        </nav>
-      </div>
-    </header>
-  </body>
-</html>
+    <!-- Hamburger Toggle -->
+    <div class="nav-toggle" id="navToggle" aria-label="Toggle navigation" role="button" tabindex="0">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="main-nav" id="mainNav" aria-label="Main Navigation">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/diagnosis">Diagnosis</a></li>
+        <li><a href="/equipment">Rent Farm Equipment</a></li>
+        <li><a href="/predict-yield">Crop Monitoring</a></li>
+        <li><a href="/livestock">Livestock Monitoring</a></li>
+
+        <% if (user && user.userId) { %>
+          <li><a href="/dash/farmer/profile">My Profile</a></li>
+          <li><a href="/logout">Logout</a></li>
+        <% } else { %>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/register">Register</a></li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById("navToggle");
+  const nav = document.getElementById("mainNav");
+
+  toggle.addEventListener("click", () => {
+    nav.classList.toggle("open");
+    toggle.classList.toggle("open");
+  });
+</script>

@@ -20,9 +20,8 @@ app.use(
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static("public")); // <-- This makes /public accessible at /
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 const routes = require("./routes/index");
@@ -37,10 +36,8 @@ const ownerRoutes = require("./routes/owner");
 app.use("/dash/admin", adminRoutes);
 app.use("/dash/owner", ownerRoutes);
 
-const farmerRoutes = require('./routes/farmer');
-app.use('/dash/farmer/profile', farmerRoutes);
-
-
+const farmerRoutes = require("./routes/farmer");
+app.use("/dash/farmer/profile", farmerRoutes);
 
 // Start server after DB connects
 initializeConnection()

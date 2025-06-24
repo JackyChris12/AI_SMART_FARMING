@@ -130,14 +130,19 @@ router.get("/crops", isAuthenticated, (req, res) => {
   res.render("crops", { user: req.session });
 });
 
+
+
+// Diagnosis page (GET)
 router.get("/diagnosis", isAuthenticated, (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/login");
+  // Initialize session history if it doesn't exist
+  if (!req.session.diagnosisHistory) {
+    req.session.diagnosisHistory = [];
   }
 
   res.render("diagnosis", {
     name: req.session.user.name,
     user: req.session.user,
+    history: req.session.diagnosisHistory,
   });
 });
 
@@ -149,11 +154,18 @@ router.post(
   async (req, res) => {
     const question = req.body.question || req.body.query;
 
+    // Initialize history if not yet available
+    if (!req.session.diagnosisHistory) {
+      req.session.diagnosisHistory = [];
+    }
+
+    // Validate agriculture question
     if (!isAgricultureQuestion(question)) {
       return res.render("diagnosis", {
         response:
           "❌ This assistant only answers agriculture-related questions. Please ask about crops, livestock, or farming issues.",
-        user: req.session,
+        user: req.session.user,
+        history: req.session.diagnosisHistory,
       });
     }
 
@@ -183,19 +195,29 @@ router.post(
         response.data.choices?.[0]?.message?.content ||
         "❓ No answer received from AI.";
 
+      // Add to history
+      req.session.diagnosisHistory.push({
+        question,
+        answer: reply,
+      });
+
       res.render("diagnosis", {
         response: { condition: reply },
-        user: req.session,
+        user: req.session.user,
+        history: req.session.diagnosisHistory,
       });
     } catch (error) {
       console.error("OpenRouter Error:", error.response?.data || error.message);
       res.render("diagnosis", {
         response: "❌ Sorry, an error occurred while processing your question.",
-        user: req.session,
+        user: req.session.user,
+        history: req.session.diagnosisHistory,
       });
     }
   }
-); // SHOW ALL EQUIPMENT
+);
+
+// SHOW ALL EQUIPMENT
 router.get("/equipment", async (req, res) => {
   try {
     const db = await initializeConnection();

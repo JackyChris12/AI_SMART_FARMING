@@ -1,201 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Crop Yield Predictor</title>
-    <style>
-      :root {
-        --primary-green: #2e7d32;
-        --light-green: #a5d6a7;
-        --soft-green: #f1f8f4;
-        --accent-brown: #8d6e63;
-        --white: #ffffff;
-        --border-color: #c8e6c9;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crop Yield Predictor</title>
+  <style>
+    :root {
+      --primary-green: #2e7d32;
+      --light-green: #a5d6a7;
+      --soft-green: #f1f8f4;
+      --accent-brown: #8d6e63;
+      --white: #ffffff;
+      --border-color: #c8e6c9;
+    }
 
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--soft-green);
+      margin: 0;
+      padding: 30px;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary-green);
+      margin-bottom: 20px;
+    }
+
+    form, .diagnosis-container {
+      max-width: 600px;
+      margin: auto;
+      background: var(--white);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.08);
+      border-left: 5px solid var(--primary-green);
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 18px;
+      color: #333;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: #f9fdf9;
+      font-size: 15px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary-green);
+      box-shadow: 0 0 3px var(--light-green);
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 16px;
+      background: var(--primary-green);
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #256528;
+    }
+
+    #predictionResponse {
+      margin-top: 30px;
+      background: #f0fff0;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 5px solid var(--primary-green);
+      color: #333;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      white-space: pre-wrap;
+    }
+
+    #predictionResponse h3 {
+      color: var(--accent-brown);
+      margin-bottom: 10px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 600px) {
       body {
-        font-family: "Segoe UI", sans-serif;
-        background: var(--soft-green);
-        margin: 0;
-        padding: 30px;
+        padding: 15px;
       }
 
-      h2 {
-        text-align: center;
-        color: var(--primary-green);
-        margin-bottom: 20px;
-      }
-
-      form,
       .diagnosis-container {
-        max-width: 600px;
-        margin: auto;
-        background: var(--white);
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 18px rgba(0, 0, 0, 0.08);
-        border-left: 5px solid var(--primary-green);
-      }
-
-      label {
-        font-weight: bold;
-        display: block;
-        margin-top: 18px;
-        color: #333;
-      }
-
-      input,
-      select {
-        width: 100%;
-        padding: 10px;
-        margin-top: 6px;
-        border-radius: 6px;
-        border: 1px solid var(--border-color);
-        background-color: #f9fdf9;
-        font-size: 15px;
-      }
-
-      input:focus {
-        outline: none;
-        border-color: var(--primary-green);
-        box-shadow: 0 0 3px var(--light-green);
+        padding: 20px;
       }
 
       button {
-        margin-top: 25px;
-        padding: 12px 16px;
-        background: var(--primary-green);
-        color: white;
-        font-weight: bold;
-        font-size: 15px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.3s;
-        width: 100%;
+        font-size: 14px;
       }
+    }
+  </style>
+</head>
+<body>
 
-      button:hover {
-        background: #256528;
-      }
+  <div class="diagnosis-container">
+    <h2>🌾 Crop Yield Predictor</h2>
 
-      #predictionResponse {
-        margin-top: 30px;
-        background: #f0fff0;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid var(--primary-green);
-        color: #333;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-        white-space: pre-wrap;
-      }
+    <div class="diagnosis-input-section">
+      <label for="crop">Crop Name</label>
+      <input type="text" id="crop" placeholder="e.g., Maize or Wheat" />
 
-      #predictionResponse h3 {
-        color: var(--accent-brown);
-        margin-bottom: 10px;
-      }
+      <label>Planting Season</label>
+      <input type="text" id="plantMonth" placeholder="Month (e.g., March)" />
+      <input type="text" id="plantYear" placeholder="Year (e.g., 2025)" />
 
-      ul {
-        padding-left: 20px;
-      }
+      <label for="landSize">Land Size (in hectares)</label>
+      <input type="text" id="landSize" placeholder="e.g., 2" />
 
-      li {
-        margin-bottom: 6px;
-      }
+      <label>Harvest Season</label>
+      <input type="text" id="harvestMonth" placeholder="Month (e.g., September)" />
+      <input type="text" id="harvestYear" placeholder="Year (e.g., 2025)" />
 
-      @media (max-width: 600px) {
-        body {
-          padding: 15px;
-        }
-
-        .diagnosis-container {
-          padding: 20px;
-        }
-
-        button {
-          font-size: 14px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="diagnosis-container">
-      <h2>🌾 Crop Yield Predictor</h2>
-
-      <div class="diagnosis-input-section">
-        <label for="crop">Crop Name</label>
-        <input type="text" id="crop" placeholder="e.g., Maize or Wheat" />
-
-        <label>Planting Season</label>
-        <input type="text" id="plantMonth" placeholder="Month (e.g., March)" />
-        <input type="text" id="plantYear" placeholder="Year (e.g., 2025)" />
-
-        <label for="landSize">Land Size (in hectares)</label>
-        <input type="text" id="landSize" placeholder="e.g., 2" />
-
-        <label>Harvest Season</label>
-        <input
-          type="text"
-          id="harvestMonth"
-          placeholder="Month (e.g., September)"
-        />
-        <input type="text" id="harvestYear" placeholder="Year (e.g., 2025)" />
-
-        <button onclick="predictYield()">
-          🌱 Predict Yield & Get Recommendations
-        </button>
-      </div>
-
-      <div id="predictionResponse" class="response"></div>
+      <button onclick="predictYield()">🌱 Predict Yield & Get Recommendations</button>
     </div>
 
-    <script>
-      async function predictYield() {
-        const crop = document.getElementById("crop").value;
-        const plantMonth = document.getElementById("plantMonth").value;
-        const plantYear = document.getElementById("plantYear").value;
-        const landSize = document.getElementById("landSize").value;
-        const harvestMonth = document.getElementById("harvestMonth").value;
-        const harvestYear = document.getElementById("harvestYear").value;
+    <div id="predictionResponse" class="response"></div>
+  </div>
 
-        const resBox = document.getElementById("predictionResponse");
-        resBox.textContent = "⏳ Processing your request...";
+  <script>
+    async function predictYield() {
+      const crop = document.getElementById("crop").value;
+      const plantMonth = document.getElementById("plantMonth").value;
+      const plantYear = document.getElementById("plantYear").value;
+      const landSize = document.getElementById("landSize").value;
+      const harvestMonth = document.getElementById("harvestMonth").value;
+      const harvestYear = document.getElementById("harvestYear").value;
 
-        try {
-          const res = await fetch("/predict-yield", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              crop,
-              plantMonth,
-              plantYear,
-              landSize,
-              harvestMonth,
-              harvestYear,
-            }),
-          });
+      const resBox = document.getElementById("predictionResponse");
+      resBox.textContent = "⏳ Processing your request...";
 
-          const data = await res.json();
-          if (data.error) {
-            resBox.textContent = "❌ " + data.error;
-          } else {
-            resBox.innerHTML = `
+      try {
+        const res = await fetch("/predict-yield", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ crop, plantMonth, plantYear, landSize, harvestMonth, harvestYear }),
+        });
+
+        const data = await res.json();
+        if (data.error) {
+          resBox.textContent = "❌ " + data.error;
+        } else {
+          resBox.innerHTML = `
             <h3>📈 Estimated Yield</h3>
             <p>${data.yield}</p>
             <h3>🛠️ Recommendations</h3>
-            <ul>${data.recommendations
-              .map((r) => `<li>${r}</li>`)
-              .join("")}</ul>
+            <ul>${data.recommendations.map(r => `<li>${r}</li>`).join("")}</ul>
           `;
-          }
-        } catch (err) {
-          console.error(err);
-          resBox.textContent = "⚠️ Error fetching prediction.";
         }
+      } catch (err) {
+        console.error(err);
+        resBox.textContent = "⚠️ Error fetching prediction.";
       }
-    </script>
-  </body>
+    }
+  </script>
+
+</body>
 </html>

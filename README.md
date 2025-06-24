@@ -111,3 +111,16 @@ JACKLINE KIBIWOT AI_SMART_FARMING web developer
 ---
 
 Thank you for using AgroAi! If you have any questions or want to contribute, feel free to open issues or pull requests.
+
+## 📸 Screenshot
+
+![Homepage Screenshot](./images/homepage.jpg)
+![Homepage Screenshot](./images/diagnosis_page.jpg)
+![Homepage Screenshot](./images/Equipment_page.jpg)
+![Homepage Screenshot](./images/Livestock_monitoring_page.jpg)
+![Homepage Screenshot](./images/Livstock-logs_page.jpg)
+![Homepage Screenshot](./images/login_page.jpg)
+![Homepage Screenshot](./images/register_page.jpg)
+![Homepage Screenshot](./images/renting-form_page.jpg)
+![Homepage Screenshot](./images/Profile_page.jpg)
+
