@@ -5,7 +5,7 @@ function isAgricultureQuestion(question) {
   const agricultureKeywords = [
   "crop", "pest", "fertilizer", "soil", "livestock", "plant", "disease",
   "weather", "farming", "agriculture", "harvest", "yield", "pesticide", "drought",
-  "cow", "goat", "sheep", "chicken", "animal", "animals", "veterinary", "livestock", "calf", "pasture"
+  "cow", "goat", "sheep", "chicken", "animal", "animals", "veterinary", "livestock", "calf", "pasture", "maize","beans", "potatoes", "grass","napier",
 ];
   const lowerCaseQuestion = question.toLowerCase();
   return agricultureKeywords.some(keyword => lowerCaseQuestion.includes(keyword));
