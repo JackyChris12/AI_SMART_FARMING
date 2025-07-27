@@ -3,10 +3,10 @@ function isAgricultureQuestion(question) {
   if (!question || typeof question !== "string") return false;
 
   const agricultureKeywords = [
-    "crop", "pest", "fertilizer", "soil", "livestock", "plant", "disease",
-    "weather", "farming", "agriculture", "harvest", "yield", "pesticide", "drought"
-  ];
-
+  "crop", "pest", "fertilizer", "soil", "livestock", "plant", "disease",
+  "weather", "farming", "agriculture", "harvest", "yield", "pesticide", "drought",
+  "cow", "goat", "sheep", "chicken", "animal", "animals", "veterinary", "livestock", "calf", "pasture"
+];
   const lowerCaseQuestion = question.toLowerCase();
   return agricultureKeywords.some(keyword => lowerCaseQuestion.includes(keyword));
 }

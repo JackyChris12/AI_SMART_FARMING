@@ -14,9 +14,9 @@
         <h3>🕓 Diagnosis History</h3>
         <ul id="historyList">
           <% history.forEach((item, index) => { %>
-            <li data-question="<%= item.question %>">
-              Q<%= index + 1 %>: <%= item.question.slice(0, 30) %>...
-            </li>
+          <li data-question="<%= item.question %>">
+            Q<%= index + 1 %>: <%= item.question.slice(0, 30) %>...
+          </li>
           <% }) %>
         </ul>
         <hr />
@@ -25,7 +25,10 @@
 
       <main class="main-content">
         <section class="diagnosis-container">
-          <h2>Welcome <%= user?.username || "Farmer" %>, how can AgroAI help your farm today?</h2>
+          <h2>
+            Welcome <%= user?.username || "Farmer" %>, how can AgroAI help your
+            farm today?
+          </h2>
 
           <div class="diagnosis-input-section">
             <label for="query">Ask about crop diseases or treatments</label>
@@ -37,7 +40,9 @@
             />
             <div class="diagnosis-buttons">
               <button title="Notifications">🔔</button>
-              <button id="askBtn"><span style="color:white">🌿</span> AgroAI</button>
+              <button id="askBtn">
+                <span style="color: white">🌿</span> AgroAI
+              </button>
               <button title="Let AgroAI Think">🤔 Think</button>
               <span id="username">AgroAI</span>
               <button title="Scroll to Top" id="scrollTopBtn">↑</button>
@@ -71,7 +76,8 @@
           return;
         }
 
-        responseBox.textContent = "Thinking... 🤔 (This can take a few seconds)";
+        responseBox.textContent =
+          "Thinking... 🤔 (This can take a few seconds)";
 
         try {
           const res = await fetch("/diagnosis", {
@@ -94,9 +100,7 @@
         }
       }
 
-      document
-        .getElementById("askBtn")
-        .addEventListener("click", askAgroAI);
+      document.getElementById("askBtn").addEventListener("click", askAgroAI);
 
       document
         .getElementById("scrollTopBtn")
@@ -110,7 +114,8 @@
 
       document.querySelectorAll("#historyList li").forEach((item) => {
         item.addEventListener("click", () => {
-          document.getElementById("query").value = item.getAttribute("data-question");
+          document.getElementById("query").value =
+            item.getAttribute("data-question");
           askAgroAI();
         });
       });

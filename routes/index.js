@@ -33,17 +33,23 @@ router.get("/login", (req, res) => {
 // Register form
 router.get("/register", (req, res) => {
   res.render("register", { error: null, user: req.session });
-});router.post('/register', async (req, res) => {
+});
+router.post("/register", async (req, res) => {
   const db = await initializeConnection();
   const { username, email, password, phone } = req.body;
 
   try {
     // Check if email exists
-    const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    const [existingUser] = await db.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
 
     if (existingUser.length > 0) {
       // Email exists, send a message and redirect to login
-      return res.render('register', { error: 'Email already exists. Please login instead.' });
+      return res.render("register", {
+        error: "Email already exists. Please login instead.",
+      });
     }
 
     // Hash the password before saving
@@ -51,15 +57,15 @@ router.get("/register", (req, res) => {
 
     // Insert new user
     await db.query(
-      'INSERT INTO users (username, email, password, phone) VALUES (?, ?, ?, ?)',
+      "INSERT INTO users (username, email, password, phone) VALUES (?, ?, ?, ?)",
       [username, email, hashedPassword, phone || null]
     );
 
     // Redirect to login after successful registration
-    res.redirect('/login');
+    res.redirect("/login");
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
 
@@ -92,11 +98,11 @@ router.post("/login", async (req, res) => {
     req.session.userId = user.id;
     req.session.role = user.role;
     req.session.user = {
-  id: user.id,
-  username: user.username,
-  email: user.email,
-  phone: user.phone
-};
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+    };
 
     // or however your user object looks
 
@@ -126,10 +132,54 @@ router.get("/dashboard", isAuthenticated, (req, res) => {
   res.render("index", { user: req.session });
 });
 
-router.get("/crops", isAuthenticated, (req, res) => {
-  res.render("crops", { user: req.session });
+// GET /predict-yield page
+router.get("/predict-yield", isAuthenticated, (req, res) => {
+   res.render("predict-yield", {
+    user: req.session.user, // optional if you're using login sessions
+  });
 });
 
+// POST /predict-yield - handle AI prediction
+router.post("/predict-yield", isAuthenticated, async (req, res) => {
+  const { crop, region, season } = req.body;
+
+  if (!crop || !region || !season) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
+
+  try {
+    const aiPrompt = `Predict the yield for ${crop} in ${region} during the ${season} season.`;
+
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: "mistralai/mistral-7b-instruct:free",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert in agricultural yield predictions.",
+          },
+          { role: "user", content: aiPrompt },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const aiReply =
+      response.data.choices?.[0]?.message?.content ||
+      "No prediction received from AI.";
+
+    res.json({ prediction: aiReply });
+  } catch (error) {
+    console.error("Prediction error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to fetch AI prediction." });
+  }
+});
 
 
 // Diagnosis page (GET)
@@ -146,76 +196,71 @@ router.get("/diagnosis", isAuthenticated, (req, res) => {
   });
 });
 
-// Diagnosis page (POST)
-router.post(
-  "/diagnosis",
-  isAuthenticated,
-  upload.single("image"),
-  async (req, res) => {
-    const question = req.body.question || req.body.query;
+// Diagnosis post
+router.post("/diagnosis", isAuthenticated, async (req, res) => {
+  console.log(req.body);
 
-    // Initialize history if not yet available
-    if (!req.session.diagnosisHistory) {
-      req.session.diagnosisHistory = [];
-    }
+  const question = req.body.question || req.body.query;
 
-    // Validate agriculture question
-    if (!isAgricultureQuestion(question)) {
-      return res.render("diagnosis", {
-        response:
-          "❌ This assistant only answers agriculture-related questions. Please ask about crops, livestock, or farming issues.",
-        user: req.session.user,
-        history: req.session.diagnosisHistory,
-      });
-    }
-
-    try {
-      const response = await axios.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          model: "mistralai/mistral-7b-instruct:free",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an expert agriculture assistant. ONLY answer agriculture-related questions.",
-            },
-            { role: "user", content: question },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.API_KEY}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const reply =
-        response.data.choices?.[0]?.message?.content ||
-        "❓ No answer received from AI.";
-
-      // Add to history
-      req.session.diagnosisHistory.push({
-        question,
-        answer: reply,
-      });
-
-      res.render("diagnosis", {
-        response: { condition: reply },
-        user: req.session.user,
-        history: req.session.diagnosisHistory,
-      });
-    } catch (error) {
-      console.error("OpenRouter Error:", error.response?.data || error.message);
-      res.render("diagnosis", {
-        response: "❌ Sorry, an error occurred while processing your question.",
-        user: req.session.user,
-        history: req.session.diagnosisHistory,
-      });
-    }
+  if (!question) {
+    return res.status(400).json({ error: "❌ Missing question or query." });
   }
-);
+
+  // ❗️Reject non-agriculture questions
+  if (!isAgricultureQuestion(question)) {
+    return res.json({
+      answer:
+        "🤖 I'm here to answer agriculture-related questions only. Please ask about crops, pests, livestock, soil, or weather.",
+    });
+  }
+
+  // Initialize history if needed
+  if (!req.session.diagnosisHistory) {
+    req.session.diagnosisHistory = [];
+  }
+
+  try {
+    const response = await axios.post(
+       "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: "mistralai/mistral-7b-instruct:free",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert agriculture assistant. ONLY answer agriculture-related questions.",
+          },
+          { role: "user", content: question },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const reply =
+      response.data.choices?.[0]?.message?.content ||
+      "❓ No answer received from AI.";
+
+    // Save to session history
+    req.session.diagnosisHistory.push({
+      question,
+      answer: reply,
+    });
+
+    res.json({ answer: reply });
+  } catch (error) {
+    console.error("Diagnosis Error:", error.message || error);
+
+    res.status(500).json({
+      error: "❌ Sorry, an error occurred while processing your question.",
+    });
+  }
+});
+
 
 // SHOW ALL EQUIPMENT
 router.get("/equipment", async (req, res) => {
@@ -289,19 +334,18 @@ router.post("/rental-form", async (req, res) => {
 
     const { owner_id, price_per_day } = equipmentData[0];
 
-   
-
     if (isNaN(start) || isNaN(end) || end < start) {
-  return res.status(400).send("Invalid rental dates: End must be after Start.");
-}
+      return res
+        .status(400)
+        .send("Invalid rental dates: End must be after Start.");
+    }
 
-const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
-if (duration <= 0) {
-  return res.status(400).send("Rental duration must be at least 1 day.");
-}
+    if (duration <= 0) {
+      return res.status(400).send("Rental duration must be at least 1 day.");
+    }
     const total_cost = price_per_day * duration;
-
 
     // Save rental record
     await db.execute(
@@ -452,46 +496,51 @@ router.get("/livestock/logs/:id", async (req, res) => {
   }
 });
 
-
-router.get('/farmer/profile', async (req, res) => {
+router.get("/farmer/profile", async (req, res) => {
   if (!req.session.user) {
-    return res.redirect('/login');
+    return res.redirect("/login");
   }
 
   try {
     const db = await initializeConnection();
 
     // Get user info
-    const [userRows] = await db.query('SELECT * FROM users WHERE id = ?', [req.session.user.id]);
+    const [userRows] = await db.query("SELECT * FROM users WHERE id = ?", [
+      req.session.user.id,
+    ]);
     const user = userRows[0];
 
     // Get equipment rental requests
-    const [rentals] = await db.query(`
+    const [rentals] = await db.query(
+      `
       SELECT rental_requests.*, equipment.name AS equipment_name
       FROM rental_requests
       JOIN equipment ON rental_requests.equipment_id = equipment.equipment_id
       WHERE rental_requests.user_id = ?
-    `, [req.session.user.id]);
+    `,
+      [req.session.user.id]
+    );
 
     // Get farmer activities
-    const [activities] = await db.query(`
+    const [activities] = await db.query(
+      `
       SELECT * FROM farmer_activities WHERE user_id = ?
       ORDER BY date DESC
-    `, [req.session.user.id]);
+    `,
+      [req.session.user.id]
+    );
 
-    res.render('farmer/profile', {
+    res.render("farmer/profile", {
       profile: {
         user,
         rentals,
-        activities
-      }
+        activities,
+      },
     });
   } catch (error) {
-    console.error('Failed to load farmer profile:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Failed to load farmer profile:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
-
-
 
 module.exports = router;
