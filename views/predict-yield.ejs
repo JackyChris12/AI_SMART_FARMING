@@ -165,6 +165,8 @@
         });
 
         const data = await res.json();
+
+        console.log(data);
         if (data.error) {
           resBox.textContent = "❌ " + data.error;
         } else {

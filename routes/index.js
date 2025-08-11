@@ -141,25 +141,35 @@ router.get("/predict-yield", isAuthenticated, (req, res) => {
 
 // POST /predict-yield - handle AI prediction
 router.post("/predict-yield", isAuthenticated, async (req, res) => {
-  const { crop, region, season } = req.body;
+  const { crop, plantMonth, plantYear, landSize, harvestMonth, harvestYear } = req.body;
 
-  if (!crop || !region || !season) {
+  if (!crop || !plantMonth || !plantYear || !landSize || !harvestMonth || !harvestYear) {
     return res.status(400).json({ error: "All fields are required." });
   }
 
   try {
-    const aiPrompt = `Predict the yield for ${crop} in ${region} during the ${season} season.`;
+    const aiPrompt = `
+      Predict the expected crop yield and give 3 recommendations using the following details:
+      - Crop: ${crop}
+      - Land Size: ${landSize} hectares
+      - Planting Date: ${plantMonth} ${plantYear}
+      - Harvest Date: ${harvestMonth} ${harvestYear}
+      
+      Respond in this format:
+      Yield: (your estimate here)
+      Recommendations:
+      1. ...
+      2. ...
+      3. ...
+    `;
 
     const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
+     "https://openrouter.ai/api/v1/chat/completions",
       {
         model: "mistralai/mistral-7b-instruct:free",
         messages: [
-          {
-            role: "system",
-            content: "You are an expert in agricultural yield predictions.",
-          },
-          { role: "user", content: aiPrompt },
+          { role: "system", content: "You are an expert in agricultural yield predictions." },
+          { role: "user", content: aiPrompt }
         ],
       },
       {
@@ -170,11 +180,22 @@ router.post("/predict-yield", isAuthenticated, async (req, res) => {
       }
     );
 
-    const aiReply =
-      response.data.choices?.[0]?.message?.content ||
-      "No prediction received from AI.";
+    const aiReply = response.data.choices?.[0]?.message?.content || "No prediction received.";
 
-    res.json({ prediction: aiReply });
+    // Extract yield and recommendations
+    const parts = aiReply.split("Recommendations:");
+    const yieldEstimate = parts[0]?.replace("Yield:", "").trim();
+    const recs = parts[1]
+      ? parts[1]
+          .split(/\d+\.\s+/) // splits on "1. ", "2. " etc.
+          .map(r => r.trim())
+          .filter(r => r)
+      : [];
+
+    res.json({
+      yield: yieldEstimate,
+      recommendations: recs,
+    });
   } catch (error) {
     console.error("Prediction error:", error.response?.data || error.message);
     res.status(500).json({ error: "Failed to fetch AI prediction." });
@@ -322,7 +343,7 @@ router.post("/rental-form", async (req, res) => {
   try {
     const db = await initializeConnection();
 
-    // Fetch equipment to get owner and price
+    //Fetch equipment to get owner and price
     const [equipmentData] = await db.execute(
       "SELECT owner_id, price_per_day FROM equipment WHERE equipment_id = ?",
       [equipment_id] // ✅ Correct: match with DB column `id`
@@ -333,12 +354,14 @@ router.post("/rental-form", async (req, res) => {
     }
 
     const { owner_id, price_per_day } = equipmentData[0];
+    const start = new Date(start_date);
+    const end = new Date(end_date);
 
     if (isNaN(start) || isNaN(end) || end < start) {
       return res
-        .status(400)
-        .send("Invalid rental dates: End must be after Start.");
-    }
+         .status(400)
+         .send("Invalid rental dates: End must be after Start.");
+     }
 
     const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
