@@ -52,12 +52,12 @@ initializeConnection()
   });
 
 // generate-hash.js
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 
-const plainPassword = "owner123"; // choose your new password
-const saltRounds = 10;
+// const plainPassword = "owner123"; // choose your new password
+// const saltRounds = 10;
 
-bcrypt.hash(plainPassword, saltRounds, (err, hash) => {
-  if (err) throw err;
-  console.log("Hashed password:", hash);
-});
+// bcrypt.hash(plainPassword, saltRounds, (err, hash) => {
+//   if (err) throw err;
+//   console.log("Hashed password:", hash);
+// });
